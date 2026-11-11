@@ -4,6 +4,7 @@
   "type": "module",
   "version": "1.4.1",
   "scripts": {
+    "build:firefox": "node scripts/build-firefox.mjs",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",

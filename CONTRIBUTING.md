@@ -42,3 +42,23 @@ refresh the page being checked.
 This development installation lasts until Firefox exits. For permanent
 installation from a signed package, see the
 [installation instructions](README.md#local-installation).
+
+## Firefox package and signing
+
+Build and validate the Firefox submission archive:
+
+```sh
+npm run build:firefox
+```
+
+The unsigned ZIP is written to `web-ext-artifacts/`. It includes the extension
+files, license, attribution, and privacy information. The Firefox manifest in
+the archive omits Chromium-only background settings.
+
+Submit the ZIP through the [Mozilla Developer Hub](https://addons.mozilla.org/developers/addon/submit/agreement).
+Choose **On your own** for signing without a public Add-ons listing, then download
+the signed `.xpi` from the submitted version's page.
+
+The fork's extension ID is `polytranslate@wofwofff`. Keep it for future versions
+and increase the manifest version before submitting an update. See Mozilla's
+[submission guide](https://extensionworkshop.com/documentation/publish/submitting-an-add-on/).
