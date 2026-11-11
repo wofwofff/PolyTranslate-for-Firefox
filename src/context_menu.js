@@ -10,11 +10,8 @@ const domainLocales = new Map([
 /**
  * Open translation for the given text
  * @param {string} text - Text to translate
- * @param {Object} [options] - Optional parameters
- * @param {number} [options.x] - X coordinate (for positioning)
- * @param {number} [options.y] - Y coordinate (for positioning)
  */
-async function openTranslation(text, options = {}) {
+async function openTranslation(text) {
   if (!text || typeof text !== "string") {
     return;
   }
@@ -27,27 +24,22 @@ async function openTranslation(text, options = {}) {
       .find((language) => domainLocales.has(language)) || "en";
 
   const domainLocale = domainLocales.get(supportedLanguage);
-  const url = `https://translate.yandex.${domainLocale}/?text=${encodeURIComponent(text)}`;
+  const url = `https://translate.yandex.${domainLocale}/?text=${encodeURIComponent(
+    text,
+  )}`;
 
   const settings = await chrome.storage.sync.get(globalThis.DEFAULT_SETTINGS);
 
   if (settings.target === "tab") {
-    chrome.tabs.create({
-      url: url,
-    });
+    await chrome.tabs.create({ url });
   } else {
     // Ensure integer dimensions
-    const w = Math.round(settings.window_width);
-    const h = Math.round(settings.window_height);
-
-    const createData = {
-      url: url,
+    await chrome.windows.create({
+      url,
       type: "popup",
-      width: w,
-      height: h,
-    };
-
-    chrome.windows.create(createData);
+      width: Math.round(settings.window_width),
+      height: Math.round(settings.window_height),
+    });
   }
 }
 
@@ -56,7 +48,11 @@ async function lookUpYandexTranslate(info) {
     return;
   }
 
-  await openTranslation(info.selectionText);
+  try {
+    await openTranslation(info.selectionText);
+  } catch (error) {
+    console.error("Failed to open translation from context menu:", error);
+  }
 }
 
 function init() {
@@ -68,11 +64,18 @@ function init() {
 }
 
 // Handle messages from content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "translateSelection") {
-    openTranslation(message.text, { x: message.x, y: message.y });
-    sendResponse({ success: true });
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.action !== "translateSelection") {
+    return false;
   }
+
+  openTranslation(message.text)
+    .then(() => sendResponse({ success: true }))
+    .catch((error) => {
+      console.error("Failed to open translation:", error);
+      sendResponse({ success: false });
+    });
+
   return true; // Keep message channel open for async response
 });
 
