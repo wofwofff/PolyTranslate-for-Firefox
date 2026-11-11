@@ -2,39 +2,30 @@
   "extensionName": {
     "message": "Yandex Translation"
   },
-
   "extensionDescription": {
     "message": "Yandex Translation is free and reliable tool provides accurate translations for over 90 languages."
   },
-
   "openIn": {
     "message": "Open translation in"
   },
-
   "newWindow": {
     "message": "a new window"
   },
-
   "newTab": {
     "message": "a new tab"
   },
-
   "windowWidth": {
     "message": "Window width"
   },
-
   "windowHeight": {
     "message": "Window height"
   },
-
   "save": {
     "message": "Save"
   },
-
   "iconTitle": {
     "message": "Translate selected text"
   },
-
   "showIconLabel": {
     "message": "Show translation icon when text is selected"
   }
