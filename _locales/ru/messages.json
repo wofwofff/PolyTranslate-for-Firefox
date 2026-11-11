@@ -28,5 +28,8 @@
   },
   "showIconLabel": {
     "message": "Показывать иконку перевода при выделении текста"
+  },
+  "contextMenuTitle": {
+    "message": "Yandex Translate"
   }
 }

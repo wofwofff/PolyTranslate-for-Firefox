@@ -56,10 +56,30 @@ async function lookUpYandexTranslate(info) {
 }
 
 function init() {
-  chrome.contextMenus.create({
-    id: contextMenuId,
-    title: "Yandex Translate: %s",
-    contexts: ["selection"],
+  chrome.contextMenus.removeAll(() => {
+    if (chrome.runtime.lastError) {
+      console.error(
+        "Failed to clear extension context menus:",
+        chrome.runtime.lastError,
+      );
+      return;
+    }
+
+    chrome.contextMenus.create(
+      {
+        id: contextMenuId,
+        title: `${chrome.i18n.getMessage("contextMenuTitle")}: %s`,
+        contexts: ["selection"],
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Failed to create translation context menu:",
+            chrome.runtime.lastError,
+          );
+        }
+      },
+    );
   });
 }
 
