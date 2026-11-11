@@ -36,12 +36,13 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "{b5ae67f2-5eb5-4610-980b-f09cf4e54c1f}",
+      "id": "polytranslate@wofwofff",
       "strict_min_version": "121.0a1"
     },
     "gecko_android": {
       "strict_min_version": "121.0a1"
     }
   },
-  "minimum_chrome_version": "121"
+  "minimum_chrome_version": "121",
+  "homepage_url": "https://github.com/wofwofff/PolyTranslate-for-Firefox"
 }

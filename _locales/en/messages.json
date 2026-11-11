@@ -1,9 +1,9 @@
 {
   "extensionName": {
-    "message": "Yandex Translation"
+    "message": "PolyTranslate"
   },
   "extensionDescription": {
-    "message": "Yandex Translation is free and reliable tool provides accurate translations for over 90 languages."
+    "message": "Translate selected text with Yandex Translate using the context menu or a selection icon."
   },
   "contextMenuTitle": {
     "message": "Yandex Translate"
