@@ -1,3 +1,5 @@
+const DEFAULT_SETTINGS = globalThis.DEFAULT_SETTINGS;
+
 function saveOptions(e) {
   e.preventDefault();
 
@@ -17,12 +19,7 @@ function restoreOptions() {
     document.querySelector("#show_icon").checked = result.show_icon;
   }
 
-  let getting = chrome.storage.sync.get({
-    window_height: 650,
-    window_width: 900,
-    target: "window",
-    show_icon: true,
-  });
+  let getting = chrome.storage.sync.get(DEFAULT_SETTINGS);
 
   getting.then(setCurrentChoice, console.error);
 }

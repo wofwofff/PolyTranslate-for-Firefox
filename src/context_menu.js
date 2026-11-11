@@ -1,3 +1,5 @@
+import "./defaults.js";
+
 const contextMenuId = "yandex-translate";
 
 const domainLocales = new Map([
@@ -25,11 +27,7 @@ async function openTranslation(text, options = {}) {
   const domainLocale = domainLocales.get(supportedLanguage);
   const url = `https://translate.yandex.${domainLocale}/?text=${encodeURIComponent(text)}`;
 
-  const settings = await chrome.storage.sync.get({
-    window_height: 650,
-    window_width: 900,
-    target: "window",
-  });
+  const settings = await chrome.storage.sync.get(globalThis.DEFAULT_SETTINGS);
 
   if (settings.target === "tab") {
     chrome.tabs.create({

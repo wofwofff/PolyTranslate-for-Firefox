@@ -10,6 +10,8 @@
     const ICON_MARGIN = 5;
     const ICON_PATH = chrome.runtime.getURL("assets/icons/icon-48.png");
 
+    const DEFAULT_SETTINGS = globalThis.DEFAULT_SETTINGS;
+
     // State
     let currentIcon = null;
     let currentSelection = "";
@@ -18,8 +20,8 @@
     let showIconTimer = null;
     let suppressIcon = false;
     let suppressTimer = null;
-    let settings = {
-      show_icon: true,
+    const settings = {
+      show_icon: DEFAULT_SETTINGS.show_icon,
     };
 
     // Create icon element
@@ -170,14 +172,9 @@
 
     // Load settings from storage
     function loadSettings() {
-      chrome.storage.sync.get(
-        {
-          show_icon: true,
-        },
-        (result) => {
-          settings.show_icon = result.show_icon;
-        },
-      );
+      chrome.storage.sync.get(DEFAULT_SETTINGS, (result) => {
+        settings.show_icon = result.show_icon;
+      });
     }
 
     // Get selected text
