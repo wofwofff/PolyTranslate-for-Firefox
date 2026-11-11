@@ -1,76 +1,163 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title data-locale="settingsTitle">Settings</title>
     <link rel="stylesheet" href="options.css" />
   </head>
-
   <body>
-    <form>
-      <fieldset>
-        <legend data-locale="openIn">Open translation in</legend>
-
-        <div class="form-input">
-          <input type="radio" id="window" name="target" value="window" />
-          <label for="window" data-locale="newWindow">a new window</label>
-        </div>
-
-        <div class="form-input">
-          <input type="radio" id="tab" name="target" value="tab" />
-          <label for="tab" data-locale="newTab">a new tab</label>
-        </div>
-      </fieldset>
-
-      <div class="form-input">
-        <label for="window_width" data-locale="windowWidth"
-          >Window width:</label
+    <main class="settings" aria-labelledby="settings-title">
+      <header class="settings-header">
+        <h1 id="settings-title" data-locale="settingsTitle">Settings</h1>
+        <p data-locale="settingsDescription">
+          Choose how translations open and when the translation icon appears.
+        </p>
+      </header>
+      <form id="settings-form" novalidate>
+        <fieldset
+          class="settings-section"
+          aria-describedby="open-in-description"
         >
-        <input type="number" id="window_width" name="window_width" min="1" />
-      </div>
-
-      <div class="form-input">
-        <label for="window_height" data-locale="windowHeight"
-          >Window height:</label
-        >
-        <input type="number" id="window_height" name="window_height" min="1" />
-      </div>
-
-      <div class="form-input">
-        <input type="checkbox" id="show_icon" name="show_icon" checked />
-        <label for="show_icon" data-locale="showIconLabel"
-          >Show translation icon when text is selected</label
-        >
-      </div>
-
-      <fieldset>
-        <legend data-locale="iconPosition">Icon position</legend>
-        <div class="form-input">
-          <input
-            type="radio"
-            id="icon-near-selection"
-            name="icon_position"
-            value="selection"
-            checked
-          /><label for="icon-near-selection" data-locale="selectionPosition"
-            >Next to selected text</label
+          <legend data-locale="openIn">Open translation in</legend>
+          <p
+            class="description"
+            id="open-in-description"
+            data-locale="openInDescription"
           >
-        </div>
-        <div class="form-input">
-          <input
-            type="radio"
-            id="icon-near-cursor"
-            name="icon_position"
-            value="cursor"
-          /><label for="icon-near-cursor" data-locale="cursorPosition"
-            >Next to cursor</label
+            Choose whether translations open in a new window or tab.
+          </p>
+          <div class="choices">
+            <label class="choice"
+              ><input
+                type="radio"
+                id="window"
+                name="target"
+                value="window"
+                checked
+              /><span data-locale="newWindow">A new window</span></label
+            >
+            <label class="choice"
+              ><input type="radio" id="tab" name="target" value="tab" /><span
+                data-locale="newTab"
+                >A new tab</span
+              ></label
+            >
+          </div>
+          <fieldset
+            class="dependent-fields"
+            id="window-size"
+            aria-describedby="window-size-description"
           >
-        </div>
-      </fieldset>
-
-      <button type="submit" data-locale="save">Save</button>
-    </form>
-
+            <legend data-locale="windowSize">Translation window size</legend>
+            <p
+              class="description"
+              id="window-size-description"
+              data-locale="windowSizeDescription"
+            >
+              Dimensions in pixels. Used only when opening a new window.
+            </p>
+            <div class="dimensions">
+              <div class="text-field">
+                <label for="window_width" data-locale="windowWidth"
+                  >Window width</label
+                >
+                <input
+                  type="number"
+                  id="window_width"
+                  name="window_width"
+                  min="320"
+                  step="1"
+                  value="900"
+                  required
+                  aria-describedby="window-size-description width-error"
+                />
+                <p class="field-error" id="width-error" hidden></p>
+              </div>
+              <div class="text-field">
+                <label for="window_height" data-locale="windowHeight"
+                  >Window height</label
+                >
+                <input
+                  type="number"
+                  id="window_height"
+                  name="window_height"
+                  min="240"
+                  step="1"
+                  value="650"
+                  required
+                  aria-describedby="window-size-description height-error"
+                />
+                <p class="field-error" id="height-error" hidden></p>
+              </div>
+            </div>
+          </fieldset>
+        </fieldset>
+        <fieldset class="settings-section">
+          <legend data-locale="showIconTitle">Selection icon</legend>
+          <label class="choice"
+            ><input
+              type="checkbox"
+              id="show_icon"
+              name="show_icon"
+              checked
+            /><span data-locale="showIconDescription"
+              >Show a translation icon when text is selected.</span
+            ></label
+          >
+          <fieldset
+            class="dependent-fields"
+            id="icon-position"
+            aria-describedby="icon-position-description"
+          >
+            <legend data-locale="iconPosition">Icon position</legend>
+            <p
+              class="description"
+              id="icon-position-description"
+              data-locale="iconPositionDescription"
+            >
+              Choose where the translation icon appears after selecting text.
+            </p>
+            <div class="choices">
+              <label class="choice"
+                ><input
+                  type="radio"
+                  id="icon-near-selection"
+                  name="icon_position"
+                  value="selection"
+                  checked
+                /><span data-locale="selectionPosition"
+                  >Next to selected text</span
+                ></label
+              >
+              <label class="choice"
+                ><input
+                  type="radio"
+                  id="icon-near-cursor"
+                  name="icon_position"
+                  value="cursor"
+                /><span data-locale="cursorPosition"
+                  >Next to cursor</span
+                ></label
+              >
+            </div>
+          </fieldset>
+        </fieldset>
+        <footer class="settings-actions">
+          <button type="submit" id="save" data-locale="save" disabled>
+            Save
+          </button>
+          <p
+            class="settings-status"
+            id="settings-status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          ></p>
+        </footer>
+      </form>
+    </main>
     <script src="defaults.js"></script>
     <script src="localize_html.js"></script>
     <script src="options.js"></script>

@@ -5,14 +5,32 @@
   "extensionDescription": {
     "message": "Перевод с английского, немецкого, французского, испанского, польского, турецкого и других языков на русский и обратно. Возможность переводить отдельные слова и фразы, а также целые тексты, фотографии, документы и веб-страницы."
   },
+  "contextMenuTitle": {
+    "message": "Yandex Translate"
+  },
   "openIn": {
-    "message": "Открыть перевод в"
+    "message": "Открывать перевод"
+  },
+  "openInDescription": {
+    "message": "Выберите, где открывать перевод: в новой вкладке или окне."
+  },
+  "iconPosition": {
+    "message": "Положение значка"
+  },
+  "iconPositionDescription": {
+    "message": "Выберите, где показывать значок перевода после выделения текста."
+  },
+  "selectionPosition": {
+    "message": "Рядом с выделенным текстом"
+  },
+  "cursorPosition": {
+    "message": "Рядом с курсором"
   },
   "newWindow": {
-    "message": "новом окне"
+    "message": "В новом окне"
   },
   "newTab": {
-    "message": "новой вкладке"
+    "message": "В новой вкладке"
   },
   "windowWidth": {
     "message": "Ширина окна"
@@ -20,25 +38,49 @@
   "windowHeight": {
     "message": "Высота окна"
   },
+  "windowSize": {
+    "message": "Размер окна перевода"
+  },
+  "windowSizeDescription": {
+    "message": "Размеры в пикселях. Используются только при открытии нового окна."
+  },
+  "showIconTitle": {
+    "message": "Значок при выделении"
+  },
+  "showIconDescription": {
+    "message": "Показывать значок перевода при выделении текста."
+  },
   "save": {
     "message": "Сохранить"
   },
   "iconTitle": {
     "message": "Перевести выделенный текст"
   },
-  "showIconLabel": {
-    "message": "Показывать иконку перевода при выделении текста"
+  "settingsSaved": {
+    "message": "Настройки сохранены."
   },
-  "contextMenuTitle": {
-    "message": "Yandex Translate"
+  "settingsSaveFailed": {
+    "message": "Не удалось сохранить настройки. Попробуйте ещё раз."
   },
-  "iconPosition": {
-    "message": "Положение значка"
+  "settingsLoadFailed": {
+    "message": "Не удалось загрузить настройки. Используются значения по умолчанию."
   },
-  "selectionPosition": {
-    "message": "Рядом с выделенным текстом"
+  "settingsTitle": {
+    "message": "Настройки"
   },
-  "cursorPosition": {
-    "message": "Рядом с курсором"
+  "settingsDescription": {
+    "message": "Выберите, где открывать перевод и когда показывать значок перевода."
+  },
+  "settingsSaving": {
+    "message": "Сохранение…"
+  },
+  "dimensionInvalid": {
+    "message": "Введите целое число не меньше $MINIMUM$.",
+    "placeholders": {
+      "minimum": {
+        "content": "$1",
+        "example": "320"
+      }
+    }
   }
 }

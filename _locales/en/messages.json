@@ -5,14 +5,32 @@
   "extensionDescription": {
     "message": "Yandex Translation is free and reliable tool provides accurate translations for over 90 languages."
   },
+  "contextMenuTitle": {
+    "message": "Yandex Translate"
+  },
   "openIn": {
     "message": "Open translation in"
   },
+  "openInDescription": {
+    "message": "Choose whether translations open in a new window or tab."
+  },
+  "iconPosition": {
+    "message": "Icon position"
+  },
+  "iconPositionDescription": {
+    "message": "Choose where the translation icon appears after selecting text."
+  },
+  "selectionPosition": {
+    "message": "Next to selected text"
+  },
+  "cursorPosition": {
+    "message": "Next to cursor"
+  },
   "newWindow": {
-    "message": "a new window"
+    "message": "A new window"
   },
   "newTab": {
-    "message": "a new tab"
+    "message": "A new tab"
   },
   "windowWidth": {
     "message": "Window width"
@@ -20,25 +38,49 @@
   "windowHeight": {
     "message": "Window height"
   },
+  "windowSize": {
+    "message": "Translation window size"
+  },
+  "windowSizeDescription": {
+    "message": "Dimensions in pixels. Used only when opening a new window."
+  },
+  "showIconTitle": {
+    "message": "Selection icon"
+  },
+  "showIconDescription": {
+    "message": "Show a translation icon when text is selected."
+  },
   "save": {
     "message": "Save"
   },
   "iconTitle": {
     "message": "Translate selected text"
   },
-  "showIconLabel": {
-    "message": "Show translation icon when text is selected"
+  "settingsSaved": {
+    "message": "Settings saved."
   },
-  "contextMenuTitle": {
-    "message": "Yandex Translate"
+  "settingsSaveFailed": {
+    "message": "Could not save settings. Please try again."
   },
-  "iconPosition": {
-    "message": "Icon position"
+  "settingsLoadFailed": {
+    "message": "Could not load settings. Defaults are active."
   },
-  "selectionPosition": {
-    "message": "Next to selected text"
+  "settingsTitle": {
+    "message": "Settings"
   },
-  "cursorPosition": {
-    "message": "Next to cursor"
+  "settingsDescription": {
+    "message": "Choose how translations open and when the translation icon appears."
+  },
+  "settingsSaving": {
+    "message": "Saving…"
+  },
+  "dimensionInvalid": {
+    "message": "Enter a whole number of $MINIMUM$ or greater.",
+    "placeholders": {
+      "minimum": {
+        "content": "$1",
+        "example": "320"
+      }
+    }
   }
 }
