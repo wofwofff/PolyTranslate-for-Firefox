@@ -31,5 +31,14 @@
   },
   "contextMenuTitle": {
     "message": "Yandex Translate"
+  },
+  "iconPosition": {
+    "message": "Icon position"
+  },
+  "selectionPosition": {
+    "message": "Next to selected text"
+  },
+  "cursorPosition": {
+    "message": "Next to cursor"
   }
 }

@@ -31,5 +31,14 @@
   },
   "contextMenuTitle": {
     "message": "Yandex Translate"
+  },
+  "iconPosition": {
+    "message": "Положение значка"
+  },
+  "selectionPosition": {
+    "message": "Рядом с выделенным текстом"
+  },
+  "cursorPosition": {
+    "message": "Рядом с курсором"
   }
 }

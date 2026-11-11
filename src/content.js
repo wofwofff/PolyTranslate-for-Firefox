@@ -20,11 +20,13 @@
     let currentSelection = "";
     let mouseX = 0;
     let mouseY = 0;
+    let keyboardSelection = false;
     let selectionFrame = null;
     let suppressIcon = false;
     let suppressTimer = null;
     const settings = {
       show_icon: DEFAULT_SETTINGS.show_icon,
+      icon_position: DEFAULT_SETTINGS.icon_position,
     };
 
     // Create icon element
@@ -156,6 +158,11 @@
 
       currentSelection = selectedText;
 
+      if (settings.icon_position === "cursor" && !keyboardSelection) {
+        showIcon(mouseX, mouseY);
+        return;
+      }
+
       const selectionRect = getSelectionRect();
       if (selectionRect) {
         showIcon(selectionRect.right, selectionRect.top);
@@ -219,6 +226,7 @@
         }
 
         settings.show_icon = result.show_icon;
+        settings.icon_position = result.icon_position;
         if (!settings.show_icon) {
           hideIcon();
         }
@@ -243,6 +251,7 @@
     // Handle mouse up (selection end)
     function handleMouseUp(event) {
       if (event.button === 0) {
+        keyboardSelection = false;
         mouseX = event.clientX;
         mouseY = event.clientY;
         scheduleSelectionUpdate();
@@ -250,6 +259,7 @@
     }
 
     function handleKeyUp() {
+      keyboardSelection = true;
       scheduleSelectionUpdate();
     }
 
@@ -294,6 +304,12 @@
             if (!settings.show_icon) {
               hideIcon();
             } else {
+              scheduleSelectionUpdate();
+            }
+          }
+          if (changes.icon_position) {
+            settings.icon_position = changes.icon_position.newValue;
+            if (iconIsVisible) {
               scheduleSelectionUpdate();
             }
           }

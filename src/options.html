@@ -43,6 +43,31 @@
         >
       </div>
 
+      <fieldset>
+        <legend data-locale="iconPosition">Icon position</legend>
+        <div class="form-input">
+          <input
+            type="radio"
+            id="icon-near-selection"
+            name="icon_position"
+            value="selection"
+            checked
+          /><label for="icon-near-selection" data-locale="selectionPosition"
+            >Next to selected text</label
+          >
+        </div>
+        <div class="form-input">
+          <input
+            type="radio"
+            id="icon-near-cursor"
+            name="icon_position"
+            value="cursor"
+          /><label for="icon-near-cursor" data-locale="cursorPosition"
+            >Next to cursor</label
+          >
+        </div>
+      </fieldset>
+
       <button type="submit" data-locale="save">Save</button>
     </form>
 
