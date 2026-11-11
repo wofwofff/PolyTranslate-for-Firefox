@@ -9,10 +9,8 @@
     const ICON_SIZE = 32;
     const ICON_MARGIN = 5;
     const ICON_PATH = chrome.runtime.getURL("assets/icons/icon-48.png");
-
-    const DEFAULT_SETTINGS = globalThis.DEFAULT_SETTINGS;
-
     const ICON_STYLES_PATH = chrome.runtime.getURL("src/content.css");
+    const DEFAULT_SETTINGS = globalThis.DEFAULT_SETTINGS;
 
     // State
     let currentIcon = null;
@@ -22,7 +20,7 @@
     let currentSelection = "";
     let mouseX = 0;
     let mouseY = 0;
-    let showIconTimer = null;
+    let selectionFrame = null;
     let suppressIcon = false;
     let suppressTimer = null;
     const settings = {
@@ -109,61 +107,61 @@
 
       if (currentSelection.trim()) {
         // Send message to background script to open translation
-        chrome.runtime.sendMessage({
-          action: "translateSelection",
-          text: currentSelection,
-          x: mouseX,
-          y: mouseY,
-        });
+        chrome.runtime
+          .sendMessage({
+            action: "translateSelection",
+            text: currentSelection,
+          })
+          .catch((error) => {
+            console.error("Failed to request translation:", error);
+          });
       }
 
       hideIcon();
 
       // Suppress icon for a short time after click to prevent immediate reappearance
       suppressIcon = true;
-      if (suppressTimer) clearTimeout(suppressTimer);
+      if (suppressTimer) {
+        clearTimeout(suppressTimer);
+      }
       suppressTimer = setTimeout(() => {
         suppressIcon = false;
         suppressTimer = null;
       }, 500); // 500ms suppression
     }
 
-    // Schedule showing icon with a delay
-    function scheduleShowIcon() {
-      // Skip if icon is suppressed (e.g., after click)
-      if (suppressIcon) {
+    // Coalesce mouse and keyboard events into one update on the next frame.
+    function scheduleSelectionUpdate() {
+      if (selectionFrame !== null) {
         return;
       }
 
-      // Skip if icon is disabled in settings
-      if (!settings.show_icon) {
+      selectionFrame = requestAnimationFrame(() => {
+        selectionFrame = null;
+        updateIconFromSelection();
+      });
+    }
+
+    function updateIconFromSelection() {
+      if (suppressIcon || !settings.show_icon) {
+        hideIcon();
         return;
       }
 
-      // Clear any existing timer
-      if (showIconTimer) {
-        clearTimeout(showIconTimer);
-        showIconTimer = null;
+      const selectedText = getSelectedText();
+      if (!selectedText) {
+        hideIcon();
+        return;
       }
 
-      // Set new timer
-      showIconTimer = setTimeout(() => {
-        const selectedText = getSelectedText();
-        if (!selectedText) {
-          // Selection disappeared, don't show icon
-          return;
-        }
-        currentSelection = selectedText;
+      currentSelection = selectedText;
 
-        const selRect = getSelectionRect();
-        if (selRect) {
-          showIcon(selRect.right, selRect.top);
-        } else {
-          // Fallback to last mouse coordinates
-          showIcon(mouseX, mouseY);
-        }
-        showIconTimer = null;
-      }, 150); // 150ms delay
+      const selectionRect = getSelectionRect();
+      if (selectionRect) {
+        showIcon(selectionRect.right, selectionRect.top);
+      } else {
+        showIcon(mouseX, mouseY);
+      }
     }
 
     // Show icon at position
@@ -207,67 +205,62 @@
         currentIcon.tabIndex = -1;
         currentIcon.classList.remove("translate-icon-visible");
       }
-      if (showIconTimer) {
-        clearTimeout(showIconTimer);
-        showIconTimer = null;
-      }
     }
 
     // Load settings from storage
     function loadSettings() {
       chrome.storage.sync.get(DEFAULT_SETTINGS, (result) => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Failed to load extension settings:",
+            chrome.runtime.lastError,
+          );
+          return;
+        }
+
         settings.show_icon = result.show_icon;
+        if (!settings.show_icon) {
+          hideIcon();
+        }
       });
     }
 
     // Get selected text
     function getSelectedText() {
-      return window.getSelection().toString().trim();
+      return window.getSelection()?.toString().trim() || "";
     }
 
-    // Get bounding rectangle of selection
+    // Get the rectangle covering the selected text.
     function getSelectionRect() {
       const selection = window.getSelection();
-      if (selection.rangeCount === 0) return null;
+      if (!selection || selection.rangeCount === 0) {
+        return null;
+      }
 
-      const range = selection.getRangeAt(0);
-      return range.getBoundingClientRect();
+      return selection.getRangeAt(0).getBoundingClientRect();
     }
 
     // Handle mouse up (selection end)
     function handleMouseUp(event) {
-      // Small delay to allow selection to update
-      setTimeout(() => {
-        const selectedText = getSelectedText();
+      if (event.button === 0) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+        scheduleSelectionUpdate();
+      }
+    }
 
-        if (selectedText && selectedText.length > 0) {
-          // Skip if icon is suppressed (e.g., after click)
-          if (suppressIcon) {
-            return;
-          }
+    function handleKeyUp() {
+      scheduleSelectionUpdate();
+    }
 
-          // Skip if icon is disabled in settings
-          if (!settings.show_icon) {
-            return;
-          }
-
-          currentSelection = selectedText;
-
-          // Try to get selection rectangle for better positioning
-          const selRect = getSelectionRect();
-          if (selRect) {
-            mouseX = selRect.right;
-            mouseY = selRect.top;
-          } else {
-            mouseX = event.clientX;
-            mouseY = event.clientY;
-          }
-
-          scheduleShowIcon();
-        } else {
-          hideIcon();
-        }
-      }, 10);
+    function handleMouseDown(event) {
+      if (
+        event.button === 0 &&
+        iconIsVisible &&
+        !iconHost?.contains(event.target)
+      ) {
+        hideIcon();
+      }
     }
 
     // Handle click outside
@@ -298,38 +291,21 @@
         if (areaName === "sync") {
           if (changes.show_icon) {
             settings.show_icon = changes.show_icon.newValue;
+            if (!settings.show_icon) {
+              hideIcon();
+            } else {
+              scheduleSelectionUpdate();
+            }
           }
         }
       });
 
       // Listen for selection events
-      document.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("click", handleClickOutside);
-      document.addEventListener("scroll", handleScroll);
-
-      // Also listen for selectionchange for better responsiveness
-      document.addEventListener("selectionchange", () => {
-        const selectedText = getSelectedText();
-        if (selectedText && selectedText.length > 0) {
-          // Skip if icon is suppressed (e.g., after click)
-          if (suppressIcon) {
-            return;
-          }
-          // Skip if icon is disabled in settings
-          if (!settings.show_icon) {
-            return;
-          }
-          currentSelection = selectedText;
-          const selRect = getSelectionRect();
-          if (selRect) {
-            mouseX = selRect.right;
-            mouseY = selRect.top;
-            scheduleShowIcon();
-          }
-        } else {
-          hideIcon();
-        }
-      });
+      document.addEventListener("mouseup", handleMouseUp, true);
+      document.addEventListener("mousedown", handleMouseDown, true);
+      document.addEventListener("keyup", handleKeyUp, true);
+      document.addEventListener("click", handleClickOutside, true);
+      document.addEventListener("scroll", handleScroll, true);
     }
 
     // Start when DOM is ready
