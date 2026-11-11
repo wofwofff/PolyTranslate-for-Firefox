@@ -4,7 +4,7 @@
 
 # PolyTranslate for Firefox
 
-[![Firefox 121+](https://img.shields.io/badge/Firefox-121%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#requirements)
+[![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#requirements)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-0060DF)](manifest.json)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue)](LICENSE)
 [![Firefox Add-ons: coming soon](https://img.shields.io/badge/Firefox_Add--ons-coming_soon-9059FF?logo=firefoxbrowser&logoColor=white)](#firefox-add-ons)
@@ -24,7 +24,7 @@ selection icon. Translations open in a separate window or a new tab.
 
 ### Requirements
 
-Firefox Desktop **121 or later**.
+Firefox Desktop **140 or later**.
 
 ### Firefox Add-ons
 
@@ -81,3 +81,5 @@ See [AUTHORS.md](AUTHORS.md) for the original author and upstream repository.
 ## License
 
 [Mozilla Public License 2.0](LICENSE).
+
+See [PRIVACY.md](PRIVACY.md) for information about text sent for translation.
