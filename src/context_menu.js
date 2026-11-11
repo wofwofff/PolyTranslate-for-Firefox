@@ -19,10 +19,12 @@ async function openTranslation(text, options = {}) {
     return;
   }
 
-  const gettingAcceptLanguages = await chrome.i18n.getAcceptLanguages();
+  const acceptedLanguages = await chrome.i18n.getAcceptLanguages();
 
   const supportedLanguage =
-    gettingAcceptLanguages.find((item) => domainLocales.has(item)) || "en";
+    acceptedLanguages
+      .map((language) => language.split("-")[0])
+      .find((language) => domainLocales.has(language)) || "en";
 
   const domainLocale = domainLocales.get(supportedLanguage);
   const url = `https://translate.yandex.${domainLocale}/?text=${encodeURIComponent(text)}`;
