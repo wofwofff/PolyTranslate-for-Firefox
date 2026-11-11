@@ -70,6 +70,10 @@ Report bugs and suggest improvements in the
 
 ## Roadmap
 
+- Choose Google Translate or Yandex Translate as the translation provider.
+- Add API-powered translation in a popup, matching Firefox's native translation
+  UX and UI as closely as possible.
+- Publish the extension on Firefox Add-ons.
 - Add keyboard shortcuts.
 - Add source and target language preferences.
 - Support full-page translation.
