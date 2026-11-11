@@ -12,8 +12,13 @@
 
     const DEFAULT_SETTINGS = globalThis.DEFAULT_SETTINGS;
 
+    const ICON_STYLES_PATH = chrome.runtime.getURL("src/content.css");
+
     // State
     let currentIcon = null;
+    let iconHost = null;
+    let iconStylesLoaded = false;
+    let iconIsVisible = false;
     let currentSelection = "";
     let mouseX = 0;
     let mouseY = 0;
@@ -26,37 +31,75 @@
 
     // Create icon element
     function createIcon() {
-      const icon = document.createElement("img");
-      icon.src = ICON_PATH;
+      const host = document.createElement("div");
+      host.hidden = true;
+      iconHost = host;
+
+      const shadowRoot = host.attachShadow({ mode: "closed" });
+      const stylesheet = document.createElement("link");
+      stylesheet.rel = "stylesheet";
+      stylesheet.href = ICON_STYLES_PATH;
+      stylesheet.addEventListener("load", () => {
+        if (iconHost !== host) {
+          return;
+        }
+        iconStylesLoaded = true;
+        host.hidden = false;
+        revealIcon(currentIcon);
+      });
+      stylesheet.addEventListener("error", () => {
+        console.error("Failed to load icon styles from", ICON_STYLES_PATH);
+      });
+      shadowRoot.appendChild(stylesheet);
+
+      const icon = document.createElement("button");
+      icon.type = "button";
+      icon.className = "translate-icon";
+      icon.setAttribute(
+        "aria-label",
+        chrome.i18n.getMessage("iconTitle") || "Translate selected text",
+      );
       icon.title = chrome.i18n.getMessage("iconTitle") || "Translate";
-      icon.style.cssText = `
-      position: absolute;
-      width: ${ICON_SIZE}px;
-      height: ${ICON_SIZE}px;
-      cursor: pointer;
-      pointer-events: auto;
-      z-index: 10000;
-      border-radius: 50%;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      transition: transform 0.2s;
-    `;
-
-      icon.addEventListener("mouseenter", () => {
-        icon.style.transform = "scale(1.1)";
-      });
-
-      icon.addEventListener("mouseleave", () => {
-        icon.style.transform = "scale(1)";
-      });
-
+      icon.tabIndex = -1;
+      icon.disabled = true;
       icon.addEventListener("click", handleIconClick);
 
       // Log image loading errors
-      icon.addEventListener("error", (e) => {
-        console.error("Failed to load icon from", ICON_PATH, e);
+      const image = document.createElement("img");
+      image.alt = "";
+      image.draggable = false;
+      image.addEventListener("error", (event) => {
+        console.error("Failed to load icon from", ICON_PATH, event);
       });
 
+      image.addEventListener("load", () => revealIcon(icon));
+      image.src = ICON_PATH;
+      icon.appendChild(image);
+      shadowRoot.appendChild(icon);
+      document.documentElement.appendChild(host);
+
       return icon;
+    }
+
+    function revealIcon(icon) {
+      const image = icon?.querySelector("img");
+      if (
+        !iconIsVisible ||
+        !iconStylesLoaded ||
+        currentIcon !== icon ||
+        !image?.complete ||
+        image.naturalWidth === 0
+      ) {
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        if (currentIcon === icon && iconIsVisible) {
+          icon.classList.add("translate-icon-visible");
+          icon.disabled = false;
+          icon.tabIndex = 0;
+        }
+      });
     }
 
     // Handle icon click
@@ -125,16 +168,14 @@
 
     // Show icon at position
     function showIcon(x, y) {
-      hideIcon();
-
-      currentIcon = createIcon();
-      document.body.appendChild(currentIcon);
+      if (!currentIcon || !iconHost?.isConnected) {
+        currentIcon = createIcon();
+        iconStylesLoaded = false;
+        iconIsVisible = false;
+      }
 
       // Position icon near mouse or selection
-      const scrollX = window.scrollX;
-      const scrollY = window.scrollY;
       const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
 
       // Coordinates relative to viewport
       let viewportX = x + ICON_MARGIN;
@@ -148,22 +189,24 @@
         viewportY = y + ICON_MARGIN;
       }
 
-      // Convert to document coordinates
-      const posX = viewportX + scrollX;
-      const posY = viewportY + scrollY;
+      currentIcon.style.left = `${viewportX}px`;
+      currentIcon.style.top = `${viewportY}px`;
 
-      currentIcon.style.left = `${posX}px`;
-      currentIcon.style.top = `${posY}px`;
+      if (!iconIsVisible) {
+        iconIsVisible = true;
+        revealIcon(currentIcon);
+      }
     }
 
     // Hide icon
     function hideIcon() {
-      if (currentIcon && document.body.contains(currentIcon)) {
-        currentIcon.remove();
+      currentSelection = "";
+      if (currentIcon && iconIsVisible) {
+        iconIsVisible = false;
+        currentIcon.disabled = true;
+        currentIcon.tabIndex = -1;
+        currentIcon.classList.remove("translate-icon-visible");
       }
-      currentIcon = null;
-
-      // Clear any pending show timer
       if (showIconTimer) {
         clearTimeout(showIconTimer);
         showIconTimer = null;
@@ -229,7 +272,11 @@
 
     // Handle click outside
     function handleClickOutside(event) {
-      if (currentIcon && !currentIcon.contains(event.target)) {
+      if (
+        currentIcon &&
+        !iconHost?.contains(event.target) &&
+        !getSelectedText()
+      ) {
         hideIcon();
       }
     }
