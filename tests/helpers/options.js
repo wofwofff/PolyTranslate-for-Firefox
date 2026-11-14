@@ -85,6 +85,7 @@ export async function optionsFixture({
   form.elements = {
     target: { value: "window" },
     icon_position: { value: "selection" },
+    provider: { value: "yandex" },
   };
   for (const id of [
     "window_width",
@@ -101,6 +102,8 @@ export async function optionsFixture({
     "tab",
     "icon-near-selection",
     "icon-near-cursor",
+    "provider-yandex",
+    "provider-google",
   ])
     node(id);
   const loading = deferred();

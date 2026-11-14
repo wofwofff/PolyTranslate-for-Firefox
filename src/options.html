@@ -18,6 +18,44 @@
       <form id="settings-form" novalidate>
         <fieldset
           class="settings-section"
+          aria-describedby="provider-description"
+        >
+          <legend data-locale="translationProvider">
+            Translation provider
+          </legend>
+          <p
+            class="description"
+            id="provider-description"
+            data-locale="providerDescription"
+          >
+            Choose which website opens your translations.
+          </p>
+          <div class="choices">
+            <label class="choice"
+              ><input
+                type="radio"
+                id="provider-yandex"
+                name="provider"
+                value="yandex"
+                checked
+              /><span data-locale="providerYandex"
+                >Yandex Translate</span
+              ></label
+            >
+            <label class="choice"
+              ><input
+                type="radio"
+                id="provider-google"
+                name="provider"
+                value="google"
+              /><span data-locale="providerGoogle"
+                >Google Translate</span
+              ></label
+            >
+          </div>
+        </fieldset>
+        <fieldset
+          class="settings-section"
           aria-describedby="open-in-description"
         >
           <legend data-locale="openIn">Open translation in</legend>

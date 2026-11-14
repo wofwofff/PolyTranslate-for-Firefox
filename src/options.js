@@ -65,6 +65,7 @@ function applySettings(settings) {
   widthInput.value = settings.window_width;
   heightInput.value = settings.window_height;
   form.elements.target.value = settings.target === "tab" ? "tab" : "window";
+  form.elements.provider.value = settings.provider;
   form.elements.icon_position.value =
     settings.icon_position === "cursor" ? "cursor" : "selection";
   iconInput.checked = settings.show_icon;
@@ -124,6 +125,7 @@ async function saveOptions(event) {
     await chrome.storage.sync.set({
       ...dimensions,
       target: form.elements.target.value,
+      provider: form.elements.provider.value,
       show_icon: iconInput.checked,
       close_on_return: closeOnReturnInput.checked,
       icon_position: form.elements.icon_position.value,

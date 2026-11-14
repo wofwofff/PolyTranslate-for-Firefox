@@ -85,6 +85,8 @@ test("all inputs remain disabled until initial settings finish loading", async (
     "tab",
     "icon-near-selection",
     "icon-near-cursor",
+    "provider-yandex",
+    "provider-google",
   ]) {
     assert.equal(ui.nodes.get(id).disabled, true, id);
   }
@@ -129,4 +131,40 @@ test("a pending save blocks duplicate submissions and a later save persists edit
   assert.equal(ui.writes.length, 2);
   assert.equal(ui.stored.window_width, 800);
   assert.equal(ui.nodes.get("settings-status").textContent, "settingsSaved");
+});
+
+test("existing profiles without a provider restore and save Yandex", async () => {
+  const ui = await optionsFixture();
+  assert.equal(ui.form.elements.provider.value, "yandex");
+  await ui.save();
+  assert.equal(ui.stored.provider, "yandex");
+});
+
+test("provider choice persists and restores on reopening settings", async () => {
+  const ui = await optionsFixture();
+  ui.form.elements.provider.value = "google";
+  ui.form.emit("change");
+  await ui.save();
+  assert.equal(ui.stored.provider, "google");
+  const reopened = await optionsFixture({ settings: ui.stored });
+  assert.equal(reopened.form.elements.provider.value, "google");
+  assert.equal(reopened.nodes.get("provider-google").disabled, false);
+});
+
+test("unsupported saved provider values restore the Yandex default", async () => {
+  const ui = await optionsFixture({ settings: { provider: "other" } });
+  assert.equal(ui.form.elements.provider.value, "yandex");
+});
+
+test("provider edits made during saving remain unsaved until the next save", async () => {
+  const ui = await optionsFixture({ deferSave: true });
+  const pending = ui.save();
+  ui.form.elements.provider.value = "google";
+  ui.form.emit("change");
+  await ui.finishSave();
+  await pending;
+  assert.equal(ui.stored.provider, "yandex");
+  assert.notEqual(ui.nodes.get("settings-status").textContent, "settingsSaved");
+  await ui.save();
+  assert.equal(ui.stored.provider, "google");
 });
