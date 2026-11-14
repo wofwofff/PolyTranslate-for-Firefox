@@ -16,6 +16,7 @@ selection icon. Translations open in a separate window or a new tab.
 
 - Show an optional translation icon next to selected text or the cursor.
 - Configure translation window dimensions.
+- Open the translation window beside the cursor or selected text.
 - Automatically close the translation popup when returning to the source window.
 - Configure the extension through an Acorn-styled settings page.
 - Use the interface in English or Russian.
@@ -67,6 +68,10 @@ By default, returning to the source window closes the translation popup. Turn of
 **Close the translation window when I return to the source window** in Preferences
 to keep it open. Switching to another application or an unrelated Firefox window
 does not close it.
+
+The popup opens beside the cursor or selection and adjusts its position near
+screen edges. Its width and height always come from Preferences; text length
+does not change the window size.
 
 ## Contributing
 
