@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { backgroundFixture } from "./helpers/background.js";
 
@@ -62,6 +63,17 @@ test("invalid synced popup dimensions fall back to usable defaults", async (t) =
   await f.message({ action: "translateSelection", text: "hello" });
   assert.equal(f.createdWindows[0].width, 900);
   assert.equal(f.createdWindows[0].height, 650);
+});
+
+test("manifest advertises desktop support only", async () => {
+  const manifest = JSON.parse(
+    await readFile(new URL("../manifest.json", import.meta.url)),
+  );
+  assert.equal(manifest.browser_specific_settings.gecko_android, undefined);
+  assert.equal(
+    manifest.browser_specific_settings.gecko.strict_min_version,
+    "140.0",
+  );
 });
 
 test("a missing private source window fails without retrying in another window", async (t) => {
