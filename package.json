@@ -4,11 +4,12 @@
   "type": "module",
   "version": "1.4.1",
   "scripts": {
+    "test": "node --test",
     "build:firefox": "node scripts/build-firefox.mjs",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "lint:firefox": "web-ext lint --source-dir . --ignore-files node_modules/** web-ext-artifacts/** package.json package-lock.json eslint.config.js .prettierrc.json .editorconfig"
+    "lint:firefox": "web-ext lint --source-dir . --ignore-files \"tests/**\" \"scripts/**\" node_modules/** web-ext-artifacts/** package.json package-lock.json eslint.config.js .prettierrc.json .editorconfig"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

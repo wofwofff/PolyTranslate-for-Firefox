@@ -7,7 +7,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ["scripts/**/*.mjs"],
+    files: ["scripts/**/*.mjs", "tests/**/*.js"],
     languageOptions: {
       globals: globals.node,
     },
