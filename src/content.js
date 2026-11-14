@@ -405,6 +405,6 @@
       init();
     }
   } catch (error) {
-    console.error("[Yandex Translate] Content script error:", error);
+    console.error("Content script error:", error);
   }
 })();
