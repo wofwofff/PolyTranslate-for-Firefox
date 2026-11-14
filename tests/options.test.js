@@ -58,6 +58,22 @@ test("loading settings cannot overwrite an edit made in an enabled field", async
   assert.equal(ui.nodes.get("window_width").value, editable ? "700" : "480");
 });
 
+test("editing during an asynchronous save must not report unsaved values as saved", async () => {
+  const ui = await optionsFixture({ deferSave: true });
+  ui.edit("window_width", 700);
+  const pending = ui.save();
+  ui.edit("window_width", 800);
+  await ui.finishSave();
+  await pending;
+  assert.equal(ui.stored.window_width, 700);
+  assert.equal(ui.nodes.get("window_width").value, "800");
+  assert.notEqual(
+    ui.nodes.get("settings-status").textContent,
+    "settingsSaved",
+    "the displayed value has not been saved",
+  );
+});
+
 test("all inputs remain disabled until initial settings finish loading", async () => {
   const ui = await optionsFixture({ deferLoad: true });
   for (const id of [
@@ -86,4 +102,31 @@ test("storage read failures show an error and unlock the default form", async ()
   assert.equal(ui.nodes.get("settings-status").dataset.error, "true");
   assert.equal(ui.nodes.get("window_width").disabled, false);
   assert.equal(ui.nodes.get("save").disabled, false);
+});
+
+test("storage write failures show an error and allow retrying", async () => {
+  const ui = await optionsFixture({ failSave: true });
+  await ui.save();
+  assert.equal(
+    ui.nodes.get("settings-status").textContent,
+    "settingsSaveFailed",
+  );
+  assert.equal(ui.nodes.get("settings-status").dataset.error, "true");
+  assert.equal(ui.nodes.get("save").disabled, false);
+  assert.equal(ui.form.hasAttribute("aria-busy"), false);
+});
+
+test("a pending save blocks duplicate submissions and a later save persists edits", async () => {
+  const ui = await optionsFixture({ deferSave: true });
+  ui.edit("window_width", 700);
+  const pending = ui.save();
+  ui.edit("window_width", 800);
+  await ui.save();
+  assert.equal(ui.writes.length, 1);
+  await ui.finishSave();
+  await pending;
+  await ui.save();
+  assert.equal(ui.writes.length, 2);
+  assert.equal(ui.stored.window_width, 800);
+  assert.equal(ui.nodes.get("settings-status").textContent, "settingsSaved");
 });

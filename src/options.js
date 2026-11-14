@@ -11,6 +11,7 @@ const saveButton = document.querySelector("#save");
 const status = document.querySelector("#settings-status");
 const dimensionInputs = [widthInput, heightInput];
 const inputs = Array.from(document.querySelectorAll("input"));
+let revision = 0;
 let savedDimensions = {
   window_width: DEFAULT_SETTINGS.window_width,
   window_height: DEFAULT_SETTINGS.window_height,
@@ -116,6 +117,7 @@ async function saveOptions(event) {
         window_height: heightInput.valueAsNumber,
       };
   saveButton.disabled = true;
+  const savedRevision = revision;
   form.setAttribute("aria-busy", "true");
   showStatus("settingsSaving");
   try {
@@ -127,7 +129,9 @@ async function saveOptions(event) {
       icon_position: form.elements.icon_position.value,
     });
     savedDimensions = { ...dimensions };
-    showStatus("settingsSaved");
+    if (revision === savedRevision) {
+      showStatus("settingsSaved");
+    }
   } catch (error) {
     console.error("Failed to save extension settings:", error);
     showStatus("settingsSaveFailed", true);
@@ -138,8 +142,13 @@ async function saveOptions(event) {
 }
 
 form.addEventListener("submit", saveOptions);
-form.addEventListener("change", updateAvailability);
+form.addEventListener("change", () => {
+  revision++;
+  status.textContent = "";
+  updateAvailability();
+});
 form.addEventListener("input", (event) => {
+  revision++;
   status.textContent = "";
   if (
     dimensionInputs.includes(event.target) &&
