@@ -34,7 +34,12 @@ async function openTranslation(text, sourceTab, anchor) {
   );
 
   if (settings.target === "tab") {
-    await chrome.tabs.create({ url });
+    await chrome.tabs.create({
+      url,
+      ...(Number.isInteger(sourceTab?.windowId) && sourceTab.windowId >= 0
+        ? { windowId: sourceTab.windowId }
+        : {}),
+    });
   } else {
     await openTranslationWindow(url, settings, sourceTab, anchor);
   }
