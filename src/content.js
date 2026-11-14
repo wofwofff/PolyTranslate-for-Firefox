@@ -21,6 +21,8 @@
     let mouseX = 0;
     let mouseY = 0;
     let keyboardSelection = false;
+    let contextMenuAnchor = null;
+    let lastScreenScale = 1;
     let selectionFrame = null;
     let suppressIcon = false;
     let suppressTimer = null;
@@ -113,6 +115,7 @@
           .sendMessage({
             action: "translateSelection",
             text: currentSelection,
+            anchor: getPopupAnchor(event),
           })
           .catch((error) => {
             console.error("Failed to request translation:", error);
@@ -248,6 +251,58 @@
       return selection.getRangeAt(0).getBoundingClientRect();
     }
 
+    function getPopupAnchor(event) {
+      const hasPointer =
+        Number.isFinite(event?.screenX) &&
+        Number.isFinite(event?.screenY) &&
+        (event.screenX !== 0 || event.screenY !== 0);
+      const rect = getSelectionRect();
+      const innerX = window.mozInnerScreenX;
+      const innerY = window.mozInnerScreenY;
+      const hasOrigin = Number.isFinite(innerX) && Number.isFinite(innerY);
+      if (hasPointer && hasOrigin) {
+        const scale =
+          event.clientX > 10
+            ? (event.screenX - innerX) / event.clientX
+            : event.clientY > 10
+              ? (event.screenY - innerY) / event.clientY
+              : lastScreenScale;
+        if (scale >= 0.25 && scale <= 5) {
+          lastScreenScale = scale;
+        }
+      }
+      const originX = hasOrigin
+        ? innerX
+        : hasPointer
+          ? event.screenX - event.clientX
+          : window.screenX;
+      const originY = hasOrigin
+        ? innerY
+        : hasPointer
+          ? event.screenY - event.clientY
+          : window.screenY + window.outerHeight - window.innerHeight;
+      const selection = rect
+        ? {
+            left: originX + rect.left * lastScreenScale,
+            top: originY + rect.top * lastScreenScale,
+            right: originX + rect.right * lastScreenScale,
+            bottom: originY + rect.bottom * lastScreenScale,
+          }
+        : undefined;
+      return {
+        scaleWithTabZoom: hasOrigin,
+        x: hasPointer ? event.screenX : (selection?.right ?? originX),
+        y: hasPointer ? event.screenY : (selection?.bottom ?? originY),
+        selection,
+        screen: {
+          left: window.screen.availLeft ?? 0,
+          top: window.screen.availTop ?? 0,
+          width: window.screen.availWidth,
+          height: window.screen.availHeight,
+        },
+      };
+    }
+
     // Handle mouse up (selection end)
     function handleMouseUp(event) {
       if (event.button === 0) {
@@ -317,6 +372,28 @@
       });
 
       // Listen for selection events
+      document.addEventListener(
+        "contextmenu",
+        (event) => {
+          contextMenuAnchor = {
+            anchor: getPopupAnchor(event),
+            time: Date.now(),
+          };
+        },
+        true,
+      );
+      chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+        if (message?.action !== "getTranslationAnchor") {
+          return false;
+        }
+        sendResponse({
+          anchor:
+            contextMenuAnchor && Date.now() - contextMenuAnchor.time < 60000
+              ? contextMenuAnchor.anchor
+              : null,
+        });
+        return false;
+      });
       document.addEventListener("mouseup", handleMouseUp, true);
       document.addEventListener("mousedown", handleMouseDown, true);
       document.addEventListener("keyup", handleKeyUp, true);

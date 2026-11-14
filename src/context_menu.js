@@ -12,7 +12,7 @@ const domainLocales = new Map([
  * Open translation for the given text
  * @param {string} text - Text to translate
  */
-async function openTranslation(text, sourceTab) {
+async function openTranslation(text, sourceTab, anchor) {
   if (!text || typeof text !== "string") {
     return;
   }
@@ -34,7 +34,7 @@ async function openTranslation(text, sourceTab) {
   if (settings.target === "tab") {
     await chrome.tabs.create({ url });
   } else {
-    await openTranslationWindow(url, settings, sourceTab);
+    await openTranslationWindow(url, settings, sourceTab, anchor);
   }
 }
 
@@ -44,7 +44,19 @@ async function lookUpYandexTranslate(info, tab) {
   }
 
   try {
-    await openTranslation(info.selectionText, tab);
+    // The native menu API has no pointer coordinates. Ask the content script
+    // in the frame where the menu was opened; restricted pages fall back safely.
+    const position =
+      tab?.id === undefined
+        ? null
+        : await chrome.tabs
+            .sendMessage(
+              tab.id,
+              { action: "getTranslationAnchor" },
+              { frameId: info.frameId ?? 0 },
+            )
+            .catch(() => null);
+    await openTranslation(info.selectionText, tab, position?.anchor);
   } catch (error) {
     console.error("Failed to open translation from context menu:", error);
   }
@@ -84,7 +96,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
 
-  openTranslation(message.text, sender.tab)
+  openTranslation(message.text, sender.tab, message.anchor)
     .then(() => sendResponse({ success: true }))
     .catch((error) => {
       console.error("Failed to open translation:", error);
