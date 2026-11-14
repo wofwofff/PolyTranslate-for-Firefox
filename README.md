@@ -78,13 +78,17 @@ Report bugs and suggest improvements in the
 
 ## Roadmap
 
-- Choose Google Translate or Yandex Translate as the translation provider.
-- Match Firefox's native contextual popup UX and UI as closely as possible,
-  without integrating translation APIs.
-- Publish the extension on Firefox Add-ons.
-- Add keyboard shortcuts.
-- Add source and target language preferences.
-- Support full-page translation.
+- [ ] Choose Google Translate or Yandex Translate as the translation provider.
+- [ ] Match Firefox's native contextual popup UX and UI as closely as possible,
+      without integrating translation APIs.
+  - [x] Open translations in a popup without the normal address bar and tab strip.
+  - [x] Position the popup beside the cursor or selected text.
+  - [x] Close the popup when returning to the source window.
+  - [ ] Match the native contextual panel layout and controls.
+- [ ] Publish the extension on Firefox Add-ons.
+- [ ] Add keyboard shortcuts.
+- [ ] Add source and target language preferences.
+- [ ] Support full-page translation.
 
 ## Authors
 
