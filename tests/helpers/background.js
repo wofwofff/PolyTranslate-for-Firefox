@@ -83,6 +83,9 @@ export async function backgroundFixture(t, options = {}) {
       },
     },
     windows: {
+      async get(id) {
+        return { id, left: 100, top: 50, width: 1200, height: 800 };
+      },
       onFocusChanged: event(),
       onRemoved: event(),
       WINDOW_ID_NONE: -1,

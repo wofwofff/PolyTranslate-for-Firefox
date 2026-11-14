@@ -6,6 +6,7 @@ globalThis.DEFAULT_SETTINGS = Object.freeze({
   close_on_return: true,
   show_icon: true,
   icon_position: "selection",
+  selection_window_position: "last_word",
 });
 
 globalThis.DIMENSION_LIMITS = Object.freeze({
@@ -45,6 +46,9 @@ globalThis.normalizeSettings = function (values = {}) {
   }
   if (values.icon_position === "cursor") {
     settings.icon_position = "cursor";
+  }
+  if (values.selection_window_position === "center") {
+    settings.selection_window_position = "center";
   }
   return settings;
 };

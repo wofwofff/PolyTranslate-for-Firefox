@@ -5,8 +5,7 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), Math.max(min, max));
 }
 
-function screenBounds(anchor) {
-  const screen = anchor?.screen;
+function screenBounds(screen) {
   if (
     !screen ||
     ![screen.left, screen.top, screen.width, screen.height].every(
@@ -25,35 +24,47 @@ function screenBounds(anchor) {
   };
 }
 
-function selectionBounds(anchor) {
-  const rect = anchor?.selection;
-  return rect &&
-    [rect.left, rect.top, rect.right, rect.bottom].every(Number.isFinite) &&
-    rect.right >= rect.left &&
-    rect.bottom >= rect.top
-    ? rect
-    : null;
-}
-
-function overlap(left, top, width, height, selection) {
-  if (!selection) {
-    return 0;
-  }
+function validWindow(window) {
   return (
-    Math.max(
-      0,
-      Math.min(left + width, selection.right) - Math.max(left, selection.left),
-    ) *
-    Math.max(
-      0,
-      Math.min(top + height, selection.bottom) - Math.max(top, selection.top),
-    )
+    window &&
+    [window.left, window.top, window.width, window.height].every(
+      Number.isFinite,
+    ) &&
+    window.width > 0 &&
+    window.height > 0
   );
 }
 
-export function translationPosition(anchor, width, height, tabZoom = 1) {
-  // Firefox reports content screen coordinates in zoomed CSS pixels, whereas
-  // the windows API uses desktop CSS pixels. Chromium coordinates need no conversion.
+function validSelection(rect) {
+  return (
+    rect &&
+    [rect.left, rect.top, rect.right, rect.bottom].every(Number.isFinite) &&
+    rect.right > rect.left &&
+    rect.bottom > rect.top
+  );
+}
+
+function fit(left, top, width, height, bounds) {
+  return {
+    left: Math.round(
+      bounds ? clamp(left, bounds.left, bounds.right - width) : left,
+    ),
+    top: Math.round(
+      bounds ? clamp(top, bounds.top, bounds.bottom - height) : top,
+    ),
+  };
+}
+
+export function translationPosition(
+  anchor,
+  width,
+  height,
+  { tabZoom = 1, mode = "cursor", sourceWindow } = {},
+) {
+  if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
+    return {};
+  }
+  // Firefox content screen coordinates are zoomed; windows API coordinates are not.
   if (
     anchor?.scaleWithTabZoom &&
     Number.isFinite(tabZoom) &&
@@ -73,45 +84,43 @@ export function translationPosition(anchor, width, height, tabZoom = 1) {
       selection: scale(anchor.selection),
     };
   }
-  const bounds = screenBounds(anchor);
-  const selection = selectionBounds(anchor);
-  if (
-    !bounds ||
-    !Number.isFinite(anchor?.x) ||
-    !Number.isFinite(anchor?.y) ||
-    !Number.isFinite(width) ||
-    !Number.isFinite(height) ||
-    width <= 0 ||
-    height <= 0
-  ) {
+  const bounds = screenBounds(anchor?.screen);
+  const selection =
+    mode === "selection" && validSelection(anchor?.selection)
+      ? anchor.selection
+      : null;
+  const x = selection ? selection.right : anchor?.x;
+  const y = selection ? selection.bottom : anchor?.y;
+
+  if (mode === "center" || !bounds || ![x, y].every(Number.isFinite)) {
+    if (validWindow(sourceWindow)) {
+      return fit(
+        sourceWindow.left + (sourceWindow.width - width) / 2,
+        sourceWindow.top + (sourceWindow.height - height) / 2,
+        width,
+        height,
+        bounds,
+      );
+    }
+    if (mode === "center" && bounds) {
+      return fit(
+        (bounds.left + bounds.right - width) / 2,
+        (bounds.top + bounds.bottom - height) / 2,
+        width,
+        height,
+        bounds,
+      );
+    }
     return {};
   }
-  const x = clamp(anchor.x, bounds.left, bounds.right);
-  const y = clamp(anchor.y, bounds.top, bounds.bottom);
-  const candidates = [
-    { left: Math.max(x, selection?.right ?? x) + GAP, top: y },
-    { left: Math.min(x, selection?.left ?? x) - width - GAP, top: y },
-    { left: x, top: (selection?.bottom ?? y) + GAP },
-    { left: x, top: (selection?.top ?? y) - height - GAP },
-  ].map((position) => ({
-    left: Math.round(clamp(position.left, bounds.left, bounds.right - width)),
-    top: Math.round(clamp(position.top, bounds.top, bounds.bottom - height)),
-  }));
-  // Prefer a position that keeps the original selection visible. Clamping can
-  // make multiple candidates identical when the screen is very small.
-  candidates.sort(
-    (a, b) =>
-      overlap(a.left, a.top, width, height, selection) -
-      overlap(b.left, b.top, width, height, selection),
-  );
-  const best =
-    candidates.find(
-      (position) =>
-        (position.left >= x + GAP ||
-          position.left + width <= x - GAP ||
-          position.top >= (selection?.bottom ?? y) + GAP ||
-          position.top + height <= (selection?.top ?? y) - GAP) &&
-        overlap(position.left, position.top, width, height, selection) === 0,
-    ) ?? candidates[0];
-  return best;
+
+  let left = x + GAP;
+  let top = y + GAP;
+  if (left + width > bounds.right && x - GAP - width >= bounds.left) {
+    left = x - GAP - width;
+  }
+  if (top + height > bounds.bottom && y - GAP - height >= bounds.top) {
+    top = y - GAP - height;
+  }
+  return fit(left, top, width, height, bounds);
 }

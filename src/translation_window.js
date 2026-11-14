@@ -63,6 +63,16 @@ export function openTranslationWindow(url, settings, sourceTab, anchor) {
     settings = globalThis.normalizeSettings(settings);
     const width = settings.window_width;
     const height = settings.window_height;
+    const sourceWindow =
+      Number.isInteger(sourceWindowId) && sourceWindowId >= 0
+        ? await chrome.windows.get(sourceWindowId).catch(() => null)
+        : null;
+    const mode =
+      settings.icon_position === "cursor"
+        ? "cursor"
+        : settings.selection_window_position === "center"
+          ? "center"
+          : "selection";
     const tabZoom =
       anchor?.scaleWithTabZoom && Number.isInteger(sourceTab?.id)
         ? await chrome.tabs.getZoom(sourceTab.id).catch(() => 1)
@@ -73,7 +83,11 @@ export function openTranslationWindow(url, settings, sourceTab, anchor) {
       focused: true,
       width,
       height,
-      ...translationPosition(anchor, width, height, tabZoom),
+      ...translationPosition(anchor, width, height, {
+        tabZoom,
+        mode,
+        sourceWindow,
+      }),
       ...(typeof sourceTab?.incognito === "boolean"
         ? { incognito: sourceTab.incognito }
         : {}),

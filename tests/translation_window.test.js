@@ -269,7 +269,7 @@ test("positions a popup using the source tab zoom without changing its size", as
     },
   );
   assert.equal(e.created[0].left, 312);
-  assert.equal(e.created[0].top, 240);
+  assert.equal(e.created[0].top, 252);
   assert.equal(e.created[0].width, settings.window_width);
   assert.equal(e.created[0].height, settings.window_height);
 });
@@ -286,4 +286,86 @@ test("preserves configured dimensions even if they exceed the available screen",
   assert.equal(e.created[0].height, 650);
   assert.equal(e.created[0].left, 8);
   assert.equal(e.created[0].top, 8);
+});
+
+test("cursor placement overrides the text-mode centering preference", async () => {
+  const e = await setup();
+  await e.api.openTranslationWindow(
+    "about:blank",
+    {
+      ...settings,
+      icon_position: "cursor",
+      selection_window_position: "center",
+    },
+    { windowId: 1 },
+    {
+      x: 200,
+      y: 160,
+      selection: { left: 900, top: 500, right: 1000, bottom: 520 },
+      screen: { left: 0, top: 0, width: 1440, height: 900 },
+    },
+  );
+  assert.equal(e.created[0].left, 212);
+  assert.equal(e.created[0].top, 172);
+});
+
+test("text placement uses the last word instead of pointer coordinates", async () => {
+  const e = await setup();
+  await e.api.openTranslationWindow(
+    "about:blank",
+    { ...settings, icon_position: "selection" },
+    { windowId: 1 },
+    {
+      x: 1300,
+      y: 850,
+      selection: { left: 200, top: 160, right: 300, bottom: 180 },
+      screen: { left: 0, top: 0, width: 1440, height: 900 },
+    },
+  );
+  assert.equal(e.created[0].left, 312);
+  assert.equal(e.created[0].top, 192);
+});
+
+test("centered placement uses the actual source window bounds", async () => {
+  const e = await setup();
+  Object.assign(e.windows.get(1), {
+    left: 40,
+    top: 60,
+    width: 1200,
+    height: 800,
+  });
+  await e.api.openTranslationWindow(
+    "about:blank",
+    {
+      ...settings,
+      icon_position: "selection",
+      selection_window_position: "center",
+    },
+    { windowId: 1 },
+    {
+      x: 1300,
+      y: 850,
+      screen: { left: 0, top: 0, width: 1440, height: 900 },
+    },
+  );
+  assert.equal(e.created[0].left, 400);
+  assert.equal(e.created[0].top, 210);
+});
+
+test("missing content anchors fall back to the source window center", async () => {
+  const e = await setup();
+  Object.assign(e.windows.get(1), {
+    left: -1400,
+    top: -50,
+    width: 1200,
+    height: 800,
+  });
+  await e.api.openTranslationWindow(
+    "about:blank",
+    { ...settings, icon_position: "cursor" },
+    { windowId: 1 },
+    null,
+  );
+  assert.equal(e.created[0].left, -1040);
+  assert.equal(e.created[0].top, 100);
 });

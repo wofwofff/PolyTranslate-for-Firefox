@@ -29,6 +29,7 @@ test("normalization preserves explicit false and supported enum choices", () => 
     show_icon: false,
     close_on_return: false,
     provider: "yandex",
+    selection_window_position: "last_word",
   };
   assert.deepEqual(globalThis.normalizeSettings(values), values);
 });
@@ -79,5 +80,24 @@ test("dimension boundaries reject fractions and native integer overflow", () => 
         globalThis.DEFAULT_SETTINGS[name],
       );
     }
+  }
+});
+
+test("existing profiles keep word placement while centering is an explicit choice", () => {
+  assert.equal(
+    globalThis.normalizeSettings({}).selection_window_position,
+    "last_word",
+  );
+  assert.equal(
+    globalThis.normalizeSettings({ selection_window_position: "center" })
+      .selection_window_position,
+    "center",
+  );
+  for (const value of [null, "auto", "cursor", 42]) {
+    assert.equal(
+      globalThis.normalizeSettings({ selection_window_position: value })
+        .selection_window_position,
+      "last_word",
+    );
   }
 });
