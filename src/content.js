@@ -12,6 +12,10 @@
     let iconStylesLoaded = false;
     let iconIsVisible = false;
     let currentSelection = "";
+    let currentWordRect = null;
+    const wordSegmenter = new Intl.Segmenter(undefined, {
+      granularity: "word",
+    });
     let mouseX = 0;
     let mouseY = 0;
     let keyboardSelection = false;
@@ -60,6 +64,11 @@
       icon.tabIndex = -1;
       icon.disabled = true;
       icon.addEventListener("click", handleIconClick);
+      icon.addEventListener("mousedown", (event) => {
+        if (event.button === 0) {
+          event.preventDefault();
+        }
+      });
       const image = document.createElement("img");
       image.alt = "";
       image.draggable = false;
@@ -148,15 +157,16 @@
       }
 
       currentSelection = selectedText;
+      currentWordRect = getLastWordRect();
 
       if (settings.icon_position === "cursor" && !keyboardSelection) {
         showIcon(mouseX, mouseY);
         return;
       }
 
-      const selectionRect = getSelectionRect();
+      const selectionRect = currentWordRect;
       if (selectionRect) {
-        showIcon(selectionRect.right, selectionRect.top);
+        showIcon(selectionRect.right, selectionRect.bottom);
       } else {
         showIcon(mouseX, mouseY);
       }
@@ -196,6 +206,7 @@
     }
     function hideIcon() {
       currentSelection = "";
+      currentWordRect = null;
       if (currentIcon && iconIsVisible) {
         iconIsVisible = false;
         currentIcon.disabled = true;
@@ -224,13 +235,61 @@
     function getSelectedText() {
       return window.getSelection()?.toString().trim() || "";
     }
-    function getSelectionRect() {
+    function getLastWordRect() {
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0) {
+      if (
+        !selection ||
+        selection.rangeCount === 0 ||
+        !selection.toString().trim()
+      ) {
         return null;
       }
-
-      return selection.getRangeAt(0).getBoundingClientRect();
+      const range = selection.getRangeAt(0);
+      const walker = document.createTreeWalker(
+        range.commonAncestorContainer,
+        NodeFilter.SHOW_TEXT,
+      );
+      walker.currentNode = range.endContainer;
+      let node;
+      if (range.endContainer.nodeType === Node.TEXT_NODE) {
+        node = range.endOffset > 0 ? range.endContainer : walker.previousNode();
+      } else if (range.endOffset < range.endContainer.childNodes.length) {
+        walker.currentNode = range.endContainer.childNodes[range.endOffset];
+        node = walker.previousNode();
+      } else {
+        node = walker.lastChild() || walker.previousNode();
+      }
+      let fallbackRect = null;
+      while (node && range.intersectsNode(node)) {
+        const start = node === range.startContainer ? range.startOffset : 0;
+        const end = node === range.endContainer ? range.endOffset : node.length;
+        const text = node.data.slice(start, end);
+        let word;
+        for (const segment of wordSegmenter.segment(text)) {
+          if (segment.isWordLike || /[\p{L}\p{N}]/u.test(segment.segment)) {
+            word = segment;
+          }
+        }
+        const fallback = /\S+\s*$/u.exec(text);
+        if (word || (!fallbackRect && fallback)) {
+          const wordRange = range.cloneRange();
+          const offset = word ? word.index : fallback.index;
+          const length = word
+            ? word.segment.length
+            : fallback[0].trimEnd().length;
+          wordRange.setStart(node, start + offset);
+          wordRange.setEnd(node, start + offset + length);
+          const rect = wordRange.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            if (word) {
+              return rect;
+            }
+            fallbackRect = rect;
+          }
+        }
+        node = walker.previousNode();
+      }
+      return fallbackRect;
     }
 
     function getPopupAnchor(event) {
@@ -238,7 +297,7 @@
         Number.isFinite(event?.screenX) &&
         Number.isFinite(event?.screenY) &&
         (event.screenX !== 0 || event.screenY !== 0);
-      const rect = getSelectionRect();
+      const rect = getLastWordRect() || currentWordRect;
       const innerX = window.mozInnerScreenX;
       const innerY = window.mozInnerScreenY;
       const hasOrigin = Number.isFinite(innerX) && Number.isFinite(innerY);

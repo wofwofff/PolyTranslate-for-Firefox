@@ -17,6 +17,7 @@ function eventTarget() {
 export async function contentFixture({
   settings = {},
   deferStorage = false,
+  segmenter = Intl.Segmenter,
   rect = { left: 100, top: 100, right: 300, bottom: 120 },
 } = {}) {
   const frames = new Map();
@@ -89,9 +90,59 @@ export async function contentFixture({
     documentElement: root,
     readyState: "complete",
     createElement: element,
+    createTreeWalker(root) {
+      return {
+        currentNode: root,
+        previousNode: () => null,
+        lastChild: () => null,
+      };
+    },
   };
+  const textNode = {
+    nodeType: 3,
+    get data() {
+      return state.text;
+    },
+    get length() {
+      return state.text.length;
+    },
+  };
+  function range() {
+    let start = 0,
+      end = state.text.length;
+    return {
+      commonAncestorContainer: textNode,
+      startContainer: textNode,
+      startOffset: 0,
+      endContainer: textNode,
+      get endOffset() {
+        return state.text.length;
+      },
+      intersectsNode: (node) => node === textNode,
+      cloneRange: range,
+      setStart(node, offset) {
+        start = offset;
+      },
+      setEnd(node, offset) {
+        end = offset;
+      },
+      getBoundingClientRect() {
+        state.lastWord = state.text.slice(start, end);
+        return {
+          ...state.rect,
+          width: state.rect.right - state.rect.left,
+          height: state.rect.bottom - state.rect.top,
+        };
+      },
+    };
+  }
+  const messages = [];
+  const messageListeners = [];
   const context = vm.createContext({
     document,
+    Intl: { Segmenter: segmenter },
+    Node: { TEXT_NODE: 3 },
+    NodeFilter: { SHOW_TEXT: 4 },
     window: {
       innerWidth: 800,
       innerHeight: 600,
@@ -104,15 +155,22 @@ export async function contentFixture({
           anchorOffset: state.anchorOffset,
           focusOffset: state.focusOffset,
           rangeCount: state.text ? 1 : 0,
-          getRangeAt: () => ({ getBoundingClientRect: () => state.rect }),
+          getRangeAt: range,
         };
       },
     },
     chrome: {
       runtime: {
         getURL: (path) => `moz-extension://test/${path}`,
-        onMessage: { addListener() {} },
-        sendMessage: async () => ({ success: true }),
+        onMessage: {
+          addListener(listener) {
+            messageListeners.push(listener);
+          },
+        },
+        sendMessage: async (message) => {
+          messages.push(message);
+          return { success: true };
+        },
       },
       i18n: { getMessage: (key) => key },
       storage: {
@@ -163,6 +221,15 @@ export async function contentFixture({
     state,
     document,
     elements,
+    messages,
+    anchor(event = {}) {
+      document.emit("contextmenu", event);
+      let result;
+      messageListeners[0]({ action: "getTranslationAnchor" }, {}, (value) => {
+        result = value;
+      });
+      return result.anchor;
+    },
     restore: () => restore(),
     flush,
     select() {
