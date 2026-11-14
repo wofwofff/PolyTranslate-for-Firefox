@@ -39,6 +39,25 @@ test("removing a stored setting restores its default value", async () => {
   assert.ok(f.visible, "removal of show_icon must restore the true default");
 });
 
+test("the icon remains reachable when selection begins above the viewport", async () => {
+  const f = await contentFixture({
+    rect: { left: 100, top: -100, right: 300, bottom: 120 },
+  });
+  f.select();
+  assert.ok(
+    Number.parseFloat(f.icon.style.top) >= 0,
+    "selection bounds can start outside the visible viewport",
+  );
+});
+
+test("the icon remains reachable when a long selection extends past the right edge", async () => {
+  const f = await contentFixture({
+    rect: { left: 100, top: 100, right: 1600, bottom: 120 },
+  });
+  f.select();
+  assert.ok(Number.parseFloat(f.icon.style.left) + 32 <= 800);
+});
+
 test("an enabled icon appears after delayed settings load for an existing selection", async () => {
   const f = await contentFixture({ deferStorage: true });
   f.select();
@@ -63,4 +82,21 @@ test("removing icon_position restores selection positioning", async () => {
   f.change({ icon_position: { oldValue: "cursor" } });
   f.flush();
   assert.notEqual(f.icon.style.left, left);
+});
+
+test("cursor positioning remains inside the viewport at every corner", async () => {
+  for (const [clientX, clientY] of [
+    [0, 0],
+    [800, 0],
+    [0, 600],
+    [800, 600],
+  ]) {
+    const f = await contentFixture({ settings: { icon_position: "cursor" } });
+    f.document.emit("mouseup", { button: 0, clientX, clientY });
+    f.flush();
+    const left = Number.parseFloat(f.icon.style.left);
+    const top = Number.parseFloat(f.icon.style.top);
+    assert.ok(left >= 0 && left + 32 <= 800);
+    assert.ok(top >= 0 && top + 32 <= 600);
+  }
 });

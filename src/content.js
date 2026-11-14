@@ -186,6 +186,7 @@
 
       // Position icon near mouse or selection
       const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
 
       // Coordinates relative to viewport
       let viewportX = x + ICON_MARGIN;
@@ -198,6 +199,14 @@
       if (viewportY < 0) {
         viewportY = y + ICON_MARGIN;
       }
+      viewportX = Math.min(
+        Math.max(ICON_MARGIN, viewportX),
+        Math.max(ICON_MARGIN, viewportWidth - ICON_SIZE - ICON_MARGIN),
+      );
+      viewportY = Math.min(
+        Math.max(ICON_MARGIN, viewportY),
+        Math.max(ICON_MARGIN, viewportHeight - ICON_SIZE - ICON_MARGIN),
+      );
 
       currentIcon.style.left = `${viewportX}px`;
       currentIcon.style.top = `${viewportY}px`;
