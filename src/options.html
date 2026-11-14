@@ -146,6 +146,81 @@
             </label>
           </fieldset>
         </fieldset>
+        <fieldset
+          class="settings-section"
+          id="icon-position"
+          aria-describedby="icon-position-description"
+        >
+          <legend data-locale="iconPosition">Placement</legend>
+          <p
+            class="description"
+            id="icon-position-description"
+            data-locale="iconPositionDescription"
+          >
+            Choose the anchor for the icon and translation window.
+          </p>
+          <div class="choices">
+            <label class="choice"
+              ><input
+                type="radio"
+                id="icon-near-selection"
+                name="icon_position"
+                value="selection"
+                checked
+              /><span data-locale="selectionPosition"
+                >Next to the last selected word</span
+              ></label
+            >
+            <label class="choice"
+              ><input
+                type="radio"
+                id="icon-near-cursor"
+                name="icon_position"
+                value="cursor"
+              /><span data-locale="cursorPosition">Next to cursor</span></label
+            >
+          </div>
+          <fieldset
+            class="dependent-fields"
+            id="selection-window-position"
+            aria-describedby="selection-window-description"
+          >
+            <legend data-locale="selectionWindowPosition">
+              Translation window in text mode
+            </legend>
+            <p
+              class="description"
+              id="selection-window-description"
+              data-locale="selectionWindowDescription"
+            >
+              Cursor mode always opens the window next to the pointer. Text mode
+              uses the position selected below.
+            </p>
+            <div class="choices">
+              <label class="choice"
+                ><input
+                  type="radio"
+                  id="window-near-word"
+                  name="selection_window_position"
+                  value="last_word"
+                  checked
+                /><span data-locale="lastWordWindow"
+                  >Next to the last selected word</span
+                ></label
+              >
+              <label class="choice"
+                ><input
+                  type="radio"
+                  id="window-centered"
+                  name="selection_window_position"
+                  value="center"
+                /><span data-locale="centeredWindow"
+                  >Centered in the source Firefox window</span
+                ></label
+              >
+            </div>
+          </fieldset>
+        </fieldset>
         <fieldset class="settings-section">
           <legend data-locale="showIconTitle">Selection icon</legend>
           <label class="choice"
@@ -158,43 +233,6 @@
               >Show a translation icon when text is selected.</span
             ></label
           >
-          <fieldset
-            class="dependent-fields"
-            id="icon-position"
-            aria-describedby="icon-position-description"
-          >
-            <legend data-locale="iconPosition">Icon position</legend>
-            <p
-              class="description"
-              id="icon-position-description"
-              data-locale="iconPositionDescription"
-            >
-              Choose where the translation icon appears after selecting text.
-            </p>
-            <div class="choices">
-              <label class="choice"
-                ><input
-                  type="radio"
-                  id="icon-near-selection"
-                  name="icon_position"
-                  value="selection"
-                  checked
-                /><span data-locale="selectionPosition"
-                  >Next to selected text</span
-                ></label
-              >
-              <label class="choice"
-                ><input
-                  type="radio"
-                  id="icon-near-cursor"
-                  name="icon_position"
-                  value="cursor"
-                /><span data-locale="cursorPosition"
-                  >Next to cursor</span
-                ></label
-              >
-            </div>
-          </fieldset>
         </fieldset>
         <footer class="settings-actions">
           <button type="submit" id="save" data-locale="save" disabled>

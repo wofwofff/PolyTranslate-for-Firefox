@@ -24,13 +24,13 @@
     "message": "Choose whether translations open in a new window or tab."
   },
   "iconPosition": {
-    "message": "Icon position"
+    "message": "Placement"
   },
   "iconPositionDescription": {
-    "message": "Choose where the translation icon appears after selecting text."
+    "message": "Choose the anchor for the icon and translation window."
   },
   "selectionPosition": {
-    "message": "Next to selected text"
+    "message": "Next to the last selected word"
   },
   "cursorPosition": {
     "message": "Next to cursor"
@@ -101,5 +101,17 @@
   },
   "closeOnReturn": {
     "message": "Close the translation window when I return to the source window"
+  },
+  "selectionWindowPosition": {
+    "message": "Translation window in text mode"
+  },
+  "selectionWindowDescription": {
+    "message": "Cursor mode always opens the window next to the pointer. Text mode uses the position selected below."
+  },
+  "lastWordWindow": {
+    "message": "Next to the last selected word"
+  },
+  "centeredWindow": {
+    "message": "Centered in the source Firefox window"
   }
 }

@@ -168,3 +168,45 @@ test("provider edits made during saving remain unsaved until the next save", asy
   await ui.save();
   assert.equal(ui.stored.provider, "google");
 });
+
+test("text mode exposes last-word and centered window placement", async () => {
+  const ui = await optionsFixture();
+  assert.equal(ui.form.elements.selection_window_position.value, "last_word");
+  assert.equal(ui.nodes.get("selection-window-position").disabled, false);
+  ui.form.elements.selection_window_position.value = "center";
+  ui.form.emit("change");
+  await ui.save();
+  const reopened = await optionsFixture({ settings: ui.stored });
+  assert.equal(
+    reopened.form.elements.selection_window_position.value,
+    "center",
+  );
+});
+
+test("cursor mode disables text-only placement without discarding its preference", async () => {
+  const ui = await optionsFixture({
+    settings: { selection_window_position: "center" },
+  });
+  ui.form.elements.icon_position.value = "cursor";
+  ui.form.emit("change");
+  assert.equal(ui.nodes.get("selection-window-position").disabled, true);
+  await ui.save();
+  assert.equal(ui.stored.selection_window_position, "center");
+  ui.form.elements.icon_position.value = "selection";
+  ui.form.emit("change");
+  assert.equal(ui.nodes.get("selection-window-position").disabled, false);
+  assert.equal(ui.form.elements.selection_window_position.value, "center");
+});
+
+test("placement remains available to context-menu users with the selection icon disabled", async () => {
+  const ui = await optionsFixture({
+    settings: { show_icon: false, target: "window" },
+  });
+  assert.equal(ui.nodes.get("icon-position").disabled, false);
+  assert.equal(ui.nodes.get("selection-window-position").disabled, false);
+});
+
+test("text window placement is disabled in tab mode", async () => {
+  const ui = await optionsFixture({ settings: { target: "tab" } });
+  assert.equal(ui.nodes.get("selection-window-position").disabled, true);
+});

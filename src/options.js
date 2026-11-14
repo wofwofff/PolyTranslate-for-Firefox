@@ -7,6 +7,9 @@ const iconInput = document.querySelector("#show_icon");
 const closeOnReturnInput = document.querySelector("#close_on_return");
 const sizeFields = document.querySelector("#window-size");
 const positionFields = document.querySelector("#icon-position");
+const selectionWindowFields = document.querySelector(
+  "#selection-window-position",
+);
 const saveButton = document.querySelector("#save");
 const status = document.querySelector("#settings-status");
 const dimensionInputs = [widthInput, heightInput];
@@ -55,7 +58,9 @@ function validateDimension(input) {
 
 function updateAvailability() {
   sizeFields.disabled = form.elements.target.value !== "window";
-  positionFields.disabled = !iconInput.checked;
+  positionFields.disabled = !iconInput.checked && sizeFields.disabled;
+  selectionWindowFields.disabled =
+    sizeFields.disabled || form.elements.icon_position.value === "cursor";
   if (sizeFields.disabled) {
     dimensionInputs.forEach(clearFieldError);
   }
@@ -68,6 +73,8 @@ function applySettings(settings) {
   form.elements.provider.value = settings.provider;
   form.elements.icon_position.value =
     settings.icon_position === "cursor" ? "cursor" : "selection";
+  form.elements.selection_window_position.value =
+    settings.selection_window_position;
   iconInput.checked = settings.show_icon;
   closeOnReturnInput.checked = settings.close_on_return !== false;
   updateAvailability();
@@ -129,6 +136,7 @@ async function saveOptions(event) {
       show_icon: iconInput.checked,
       close_on_return: closeOnReturnInput.checked,
       icon_position: form.elements.icon_position.value,
+      selection_window_position: form.elements.selection_window_position.value,
     });
     savedDimensions = { ...dimensions };
     if (revision === savedRevision) {

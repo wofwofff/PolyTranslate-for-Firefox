@@ -86,6 +86,7 @@ export async function optionsFixture({
     target: { value: "window" },
     icon_position: { value: "selection" },
     provider: { value: "yandex" },
+    selection_window_position: { value: "last_word" },
   };
   for (const id of [
     "window_width",
@@ -104,6 +105,9 @@ export async function optionsFixture({
     "icon-near-cursor",
     "provider-yandex",
     "provider-google",
+    "selection-window-position",
+    "window-near-word",
+    "window-centered",
   ])
     node(id);
   const loading = deferred();
