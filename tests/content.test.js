@@ -58,6 +58,30 @@ test("the icon remains reachable when a long selection extends past the right ed
   assert.ok(Number.parseFloat(f.icon.style.left) + 32 <= 800);
 });
 
+test("modifier key release does not move a cursor-positioned icon", async () => {
+  const f = await contentFixture({ settings: { icon_position: "cursor" } });
+  f.select();
+  const left = f.icon.style.left;
+  f.document.emit("keyup", { key: "Control" });
+  f.flush();
+  assert.equal(
+    f.icon.style.left,
+    left,
+    "unchanged selection should not jump to the text position",
+  );
+});
+
+test("keyboard selection changes move a cursor-positioned icon to the text", async () => {
+  const f = await contentFixture({ settings: { icon_position: "cursor" } });
+  f.select();
+  const left = f.icon.style.left;
+  f.state.focusOffset++;
+  f.document.emit("keyup", { key: "ArrowRight", shiftKey: true });
+  f.flush();
+  assert.ok(f.visible);
+  assert.notEqual(f.icon.style.left, left);
+});
+
 test("an enabled icon appears after delayed settings load for an existing selection", async () => {
   const f = await contentFixture({ deferStorage: true });
   f.select();

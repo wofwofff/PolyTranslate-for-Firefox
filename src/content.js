@@ -27,6 +27,7 @@
     let suppressIcon = false;
     let suppressTimer = null;
     let settingsLoaded = false;
+    let lastSelectionState = null;
     const settingsOverrides = {};
     const settings = {
       show_icon: DEFAULT_SETTINGS.show_icon,
@@ -319,13 +320,36 @@
     function handleMouseUp(event) {
       if (event.button === 0) {
         keyboardSelection = false;
+        rememberSelection();
         mouseX = event.clientX;
         mouseY = event.clientY;
         scheduleSelectionUpdate();
       }
     }
 
+    function rememberSelection() {
+      const selection = window.getSelection();
+      const state = selection
+        ? [
+            selection.toString(),
+            selection.anchorNode,
+            selection.anchorOffset,
+            selection.focusNode,
+            selection.focusOffset,
+          ]
+        : [];
+      const changed =
+        !lastSelectionState ||
+        state.length !== lastSelectionState.length ||
+        state.some((value, index) => value !== lastSelectionState[index]);
+      lastSelectionState = state;
+      return changed;
+    }
+
     function handleKeyUp() {
+      if (!rememberSelection()) {
+        return;
+      }
       keyboardSelection = true;
       scheduleSelectionUpdate();
     }
@@ -360,6 +384,7 @@
 
     // Initialize
     function init() {
+      rememberSelection();
       // Load settings
       loadSettings();
 
