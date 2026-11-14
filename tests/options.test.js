@@ -44,3 +44,46 @@ test("does not accept a dimension that restore will silently discard", async () 
     "unsafe dimensions must be rejected before storage.set",
   );
 });
+
+test("loading settings cannot overwrite an edit made in an enabled field", async () => {
+  const ui = await optionsFixture({
+    deferLoad: true,
+    settings: { window_width: 480 },
+  });
+  const editable =
+    !ui.nodes.get("window_width").disabled &&
+    !ui.nodes.get("window-size").disabled;
+  if (editable) ui.edit("window_width", 700);
+  await ui.load();
+  assert.equal(ui.nodes.get("window_width").value, editable ? "700" : "480");
+});
+
+test("all inputs remain disabled until initial settings finish loading", async () => {
+  const ui = await optionsFixture({ deferLoad: true });
+  for (const id of [
+    "window_width",
+    "window_height",
+    "show_icon",
+    "close_on_return",
+    "window",
+    "tab",
+    "icon-near-selection",
+    "icon-near-cursor",
+  ]) {
+    assert.equal(ui.nodes.get(id).disabled, true, id);
+  }
+  await ui.load();
+  assert.equal(ui.nodes.get("window_width").disabled, false);
+  assert.equal(ui.nodes.get("save").disabled, false);
+});
+
+test("storage read failures show an error and unlock the default form", async () => {
+  const ui = await optionsFixture({ failLoad: true });
+  assert.equal(
+    ui.nodes.get("settings-status").textContent,
+    "settingsLoadFailed",
+  );
+  assert.equal(ui.nodes.get("settings-status").dataset.error, "true");
+  assert.equal(ui.nodes.get("window_width").disabled, false);
+  assert.equal(ui.nodes.get("save").disabled, false);
+});

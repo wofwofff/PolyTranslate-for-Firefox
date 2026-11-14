@@ -10,6 +10,7 @@ const positionFields = document.querySelector("#icon-position");
 const saveButton = document.querySelector("#save");
 const status = document.querySelector("#settings-status");
 const dimensionInputs = [widthInput, heightInput];
+const inputs = Array.from(document.querySelectorAll("input"));
 let savedDimensions = {
   window_width: DEFAULT_SETTINGS.window_width,
   window_height: DEFAULT_SETTINGS.window_height,
@@ -72,6 +73,9 @@ function applySettings(settings) {
 
 async function restoreOptions() {
   saveButton.disabled = true;
+  inputs.forEach((input) => {
+    input.disabled = true;
+  });
   try {
     const settings = globalThis.normalizeSettings(
       await chrome.storage.sync.get(DEFAULT_SETTINGS),
@@ -85,6 +89,10 @@ async function restoreOptions() {
     console.error("Failed to restore extension settings:", error);
     showStatus("settingsLoadFailed", true);
   } finally {
+    inputs.forEach((input) => {
+      input.disabled = false;
+    });
+    updateAvailability();
     saveButton.disabled = false;
   }
 }
