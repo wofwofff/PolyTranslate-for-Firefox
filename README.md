@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="./assets/icons/icon-96.png" width="96" height="96" alt="PolyTranslate icon">
-</p>
-
-# PolyTranslate for Firefox
+![PolyTranslate for Firefox — A little help with every language.](assets/readme/banner.png)
 
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#requirements)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-0060DF)](manifest.json)
