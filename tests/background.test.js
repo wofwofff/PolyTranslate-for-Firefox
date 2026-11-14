@@ -44,6 +44,16 @@ test("tab mode keeps a private source in its original window after focus changes
   );
 });
 
+test("invalid translation payloads do not receive a success response", async (t) => {
+  const f = await backgroundFixture(t);
+  await f.load();
+  assert.deepEqual(
+    await f.message({ action: "translateSelection", text: 42 }),
+    { success: false },
+  );
+  assert.equal(f.createdTabs.length, 0);
+});
+
 test("invalid synced popup dimensions fall back to usable defaults", async (t) => {
   const f = await backgroundFixture(t, {
     settings: { target: "window", window_width: -10, window_height: null },
@@ -71,4 +81,15 @@ test("a missing private source window fails without retrying in another window",
   );
   assert.equal(attempts.length, 1);
   assert.equal(attempts[0].windowId, 7);
+});
+
+test("blank and missing text fail without opening a translation", async (t) => {
+  const f = await backgroundFixture(t);
+  await f.load();
+  for (const text of ["", " \n ", null, undefined]) {
+    assert.deepEqual(await f.message({ action: "translateSelection", text }), {
+      success: false,
+    });
+  }
+  assert.equal(f.createdTabs.length, 0);
 });

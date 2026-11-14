@@ -13,8 +13,8 @@ const domainLocales = new Map([
  * @param {string} text - Text to translate
  */
 async function openTranslation(text, sourceTab, anchor) {
-  if (!text || typeof text !== "string") {
-    return;
+  if (typeof text !== "string" || !text.trim()) {
+    throw new TypeError("Translation text must be a non-empty string");
   }
 
   const acceptedLanguages = await chrome.i18n.getAcceptLanguages();
