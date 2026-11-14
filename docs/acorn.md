@@ -32,6 +32,8 @@ cannot be imported by a Manifest V3 options page.
   responsive dimensions. No animation is needed for these controls.
 - Save and storage failure feedback uses an atomic polite live region. Disabled
   window dimensions retain their last saved values when saving tab mode.
+- The window-only group includes an autoclose preference. It is disabled in tab
+  mode, retains its value, and applies to newly opened translation windows.
 
 ## Scope
 

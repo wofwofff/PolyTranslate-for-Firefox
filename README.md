@@ -16,6 +16,7 @@ selection icon. Translations open in a separate window or a new tab.
 
 - Show an optional translation icon next to selected text or the cursor.
 - Configure translation window dimensions.
+- Automatically close the translation popup when returning to the source window.
 - Configure the extension through an Acorn-styled settings page.
 - Use the interface in English or Russian.
 - No API key required: translations open on the Yandex Translate website.
@@ -60,6 +61,12 @@ To load the source during development, see
 
 To change the opening mode, window dimensions, or icon behavior, open
 `about:addons`, select the extension, and open **Preferences**.
+
+Window mode uses a Firefox popup without the normal address bar and tab strip.
+By default, returning to the source window closes the translation popup. Turn off
+**Close the translation window when I return to the source window** in Preferences
+to keep it open. Switching to another application or an unrelated Firefox window
+does not close it.
 
 ## Contributing
 
