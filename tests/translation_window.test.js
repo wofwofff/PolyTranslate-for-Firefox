@@ -248,3 +248,42 @@ test("does not associate requests without a source with arbitrary windows", asyn
   await setImmediate();
   assert.deepEqual(e.closed, []);
 });
+
+test("positions a popup using the source tab zoom without changing its size", async () => {
+  const e = await setup();
+  globalThis.chrome.tabs = {
+    async getZoom(id) {
+      assert.equal(id, 7);
+      return 1.5;
+    },
+  };
+  await e.api.openTranslationWindow(
+    "about:blank",
+    settings,
+    { id: 7, windowId: 1 },
+    {
+      x: 200,
+      y: 160,
+      scaleWithTabZoom: true,
+      screen: { left: 0, top: 0, width: 960, height: 600 },
+    },
+  );
+  assert.equal(e.created[0].left, 312);
+  assert.equal(e.created[0].top, 240);
+  assert.equal(e.created[0].width, settings.window_width);
+  assert.equal(e.created[0].height, settings.window_height);
+});
+
+test("preserves configured dimensions even if they exceed the available screen", async () => {
+  const e = await setup();
+  await e.api.openTranslationWindow(
+    "about:blank",
+    { ...settings, window_width: 900, window_height: 650 },
+    { windowId: 1 },
+    { x: 200, y: 160, screen: { left: 0, top: 0, width: 640, height: 480 } },
+  );
+  assert.equal(e.created[0].width, 900);
+  assert.equal(e.created[0].height, 650);
+  assert.equal(e.created[0].left, 8);
+  assert.equal(e.created[0].top, 8);
+});

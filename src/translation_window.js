@@ -1,3 +1,5 @@
+import { translationPosition } from "./translation_position.js";
+
 const STATE_KEY = "translation_windows";
 let pending = Promise.resolve();
 
@@ -54,15 +56,22 @@ async function closeReturnedWindows(windowId) {
   await saveWindows(windows.filter((window) => !closing.includes(window)));
 }
 
-export function openTranslationWindow(url, settings, sourceTab) {
+export function openTranslationWindow(url, settings, sourceTab, anchor) {
   return enqueue(async () => {
     const sourceWindowId = sourceTab?.windowId;
+    const width = Math.round(settings.window_width);
+    const height = Math.round(settings.window_height);
+    const tabZoom =
+      anchor?.scaleWithTabZoom && Number.isInteger(sourceTab?.id)
+        ? await chrome.tabs.getZoom(sourceTab.id).catch(() => 1)
+        : 1;
     const popup = await chrome.windows.create({
       url,
       type: "popup",
       focused: true,
-      width: Math.round(settings.window_width),
-      height: Math.round(settings.window_height),
+      width,
+      height,
+      ...translationPosition(anchor, width, height, tabZoom),
       ...(typeof sourceTab?.incognito === "boolean"
         ? { incognito: sourceTab.incognito }
         : {}),
