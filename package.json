@@ -2,7 +2,7 @@
   "name": "polytranslate-for-firefox",
   "private": true,
   "type": "module",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "scripts": {
     "test": "node --test",
     "build:firefox": "node scripts/build_firefox.mjs",
