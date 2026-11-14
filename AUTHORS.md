@@ -9,3 +9,8 @@
 
 This fork is hosted at
 [wofwofff/PolyTranslate-for-Firefox](https://github.com/wofwofff/PolyTranslate-for-Firefox).
+
+## Artwork
+
+The PolyTranslate icon was generated with OpenAI's image generation tool.
+Source and prompt: [icon](assets/icons/source/).
