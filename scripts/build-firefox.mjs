@@ -7,6 +7,10 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const stage = await mkdtemp(join(tmpdir(), "polytranslate-firefox-"));
 const webExt = join(root, "node_modules/web-ext/bin/web-ext.js");
+const excludedAssets = new Set([
+  join(root, "assets/icons/source"),
+  join(root, "assets/readme"),
+]);
 
 try {
   for (const path of [
@@ -17,7 +21,10 @@ try {
     "AUTHORS.md",
     "PRIVACY.md",
   ]) {
-    await cp(join(root, path), join(stage, path), { recursive: true });
+    await cp(join(root, path), join(stage, path), {
+      recursive: true,
+      filter: (source) => !excludedAssets.has(source),
+    });
   }
 
   const manifest = JSON.parse(
