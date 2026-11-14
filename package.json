@@ -5,7 +5,7 @@
   "version": "1.4.1",
   "scripts": {
     "test": "node --test",
-    "build:firefox": "node scripts/build-firefox.mjs",
+    "build:firefox": "node scripts/build_firefox.mjs",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
