@@ -4,6 +4,7 @@ const form = document.querySelector("form");
 const widthInput = document.querySelector("#window_width");
 const heightInput = document.querySelector("#window_height");
 const iconInput = document.querySelector("#show_icon");
+const closeOnReturnInput = document.querySelector("#close_on_return");
 const sizeFields = document.querySelector("#window-size");
 const positionFields = document.querySelector("#icon-position");
 const saveButton = document.querySelector("#save");
@@ -57,6 +58,7 @@ function applySettings(settings) {
   form.elements.icon_position.value =
     settings.icon_position === "cursor" ? "cursor" : "selection";
   iconInput.checked = settings.show_icon;
+  closeOnReturnInput.checked = settings.close_on_return !== false;
   updateAvailability();
 }
 
@@ -109,6 +111,7 @@ async function saveOptions(event) {
       ...dimensions,
       target: form.elements.target.value,
       show_icon: iconInput.checked,
+      close_on_return: closeOnReturnInput.checked,
       icon_position: form.elements.icon_position.value,
     });
     savedDimensions = { ...dimensions };

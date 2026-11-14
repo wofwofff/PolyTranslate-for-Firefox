@@ -50,7 +50,7 @@
             id="window-size"
             aria-describedby="window-size-description"
           >
-            <legend data-locale="windowSize">Translation window size</legend>
+            <legend data-locale="windowOptions">Translation window</legend>
             <p
               class="description"
               id="window-size-description"
@@ -92,6 +92,18 @@
                 <p class="field-error" id="height-error" hidden></p>
               </div>
             </div>
+            <label class="choice window-behavior">
+              <input
+                type="checkbox"
+                id="close_on_return"
+                name="close_on_return"
+                checked
+              />
+              <span data-locale="closeOnReturn"
+                >Close the translation window when I return to the source
+                window</span
+              >
+            </label>
           </fieldset>
         </fieldset>
         <fieldset class="settings-section">

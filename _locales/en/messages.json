@@ -82,5 +82,11 @@
         "example": "320"
       }
     }
+  },
+  "windowOptions": {
+    "message": "Translation window"
+  },
+  "closeOnReturn": {
+    "message": "Close the translation window when I return to the source window"
   }
 }

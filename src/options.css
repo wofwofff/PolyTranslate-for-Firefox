@@ -134,6 +134,11 @@ legend {
 .text-field {
   min-inline-size: 0;
 }
+
+.window-behavior {
+  margin-block-start: var(--space-large);
+}
+
 .text-field > label {
   display: block;
   margin-block-end: var(--space-small);
