@@ -1,3 +1,4 @@
+import "./defaults.js";
 import { translationPosition } from "./translation_position.js";
 
 const STATE_KEY = "translation_windows";
@@ -59,8 +60,9 @@ async function closeReturnedWindows(windowId) {
 export function openTranslationWindow(url, settings, sourceTab, anchor) {
   return enqueue(async () => {
     const sourceWindowId = sourceTab?.windowId;
-    const width = Math.round(settings.window_width);
-    const height = Math.round(settings.window_height);
+    settings = globalThis.normalizeSettings(settings);
+    const width = settings.window_width;
+    const height = settings.window_height;
     const tabZoom =
       anchor?.scaleWithTabZoom && Number.isInteger(sourceTab?.id)
         ? await chrome.tabs.getZoom(sourceTab.id).catch(() => 1)

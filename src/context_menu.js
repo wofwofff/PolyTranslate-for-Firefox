@@ -29,7 +29,9 @@ async function openTranslation(text, sourceTab, anchor) {
     text,
   )}`;
 
-  const settings = await chrome.storage.sync.get(globalThis.DEFAULT_SETTINGS);
+  const settings = globalThis.normalizeSettings(
+    await chrome.storage.sync.get(globalThis.DEFAULT_SETTINGS),
+  );
 
   if (settings.target === "tab") {
     await chrome.tabs.create({ url });

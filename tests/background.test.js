@@ -29,3 +29,13 @@ test("creation failures are returned to the sender", async (t) => {
     { success: false },
   );
 });
+
+test("invalid synced popup dimensions fall back to usable defaults", async (t) => {
+  const f = await backgroundFixture(t, {
+    settings: { target: "window", window_width: -10, window_height: null },
+  });
+  await f.load();
+  await f.message({ action: "translateSelection", text: "hello" });
+  assert.equal(f.createdWindows[0].width, 900);
+  assert.equal(f.createdWindows[0].height, 650);
+});
