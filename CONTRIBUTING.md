@@ -25,6 +25,8 @@ npm run build:firefox
 The Firefox lint command validates the staged Firefox extension using Mozilla's
 `web-ext` and addons-linter, treating warnings as errors. The build command only
 assembles the ZIP. Both commands use the same Firefox source preparation.
+Android minimum-version warnings are reported separately and do not fail lint
+while the manifest declares desktop support only. All other warnings still fail.
 Use `npm run format` to format files.
 
 The settings page follows the [Acorn UI guidelines](docs/acorn.md).
