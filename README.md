@@ -26,9 +26,9 @@ new tab. Yandex is selected by default.
 
 Firefox Desktop **140 or later**.
 
-Allow access to websites during installation so the extension can detect text
-selections and show its icon. Firefox lets you change this access later under
-the extension's **Permissions and data** tab.
+Allow website access during installation so the extension can detect text
+selections and show its icon. To translate local files, enable **Access local
+files on your computer** under **Permissions and data** in Firefox 153 or later.
 
 ### Firefox Add-ons
 
