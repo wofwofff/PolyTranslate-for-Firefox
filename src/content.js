@@ -26,6 +26,8 @@
     let selectionFrame = null;
     let suppressIcon = false;
     let suppressTimer = null;
+    let settingsLoaded = false;
+    const settingsOverrides = {};
     const settings = {
       show_icon: DEFAULT_SETTINGS.show_icon,
       icon_position: DEFAULT_SETTINGS.icon_position,
@@ -148,7 +150,7 @@
     }
 
     function updateIconFromSelection() {
-      if (suppressIcon || !settings.show_icon) {
+      if (!settingsLoaded || suppressIcon || !settings.show_icon) {
         hideIcon();
         return;
       }
@@ -225,14 +227,15 @@
             "Failed to load extension settings:",
             chrome.runtime.lastError,
           );
-          return;
         }
-
-        settings.show_icon = result.show_icon;
-        settings.icon_position = result.icon_position;
-        if (!settings.show_icon) {
-          hideIcon();
-        }
+        const loaded = globalThis.normalizeSettings({
+          ...(chrome.runtime.lastError ? DEFAULT_SETTINGS : result),
+          ...settingsOverrides,
+        });
+        settings.show_icon = loaded.show_icon;
+        settings.icon_position = loaded.icon_position;
+        settingsLoaded = true;
+        scheduleSelectionUpdate();
       });
     }
 
@@ -355,7 +358,10 @@
       chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName === "sync") {
           if (changes.show_icon) {
-            settings.show_icon = changes.show_icon.newValue;
+            settings.show_icon = globalThis.normalizeSettings({
+              show_icon: changes.show_icon.newValue,
+            }).show_icon;
+            settingsOverrides.show_icon = settings.show_icon;
             if (!settings.show_icon) {
               hideIcon();
             } else {
@@ -363,7 +369,10 @@
             }
           }
           if (changes.icon_position) {
-            settings.icon_position = changes.icon_position.newValue;
+            settings.icon_position = globalThis.normalizeSettings({
+              icon_position: changes.icon_position.newValue,
+            }).icon_position;
+            settingsOverrides.icon_position = settings.icon_position;
             if (iconIsVisible) {
               scheduleSelectionUpdate();
             }
