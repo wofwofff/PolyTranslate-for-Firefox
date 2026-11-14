@@ -9,6 +9,9 @@ select it.
 The extension does not include analytics or send data to a server operated by
 the fork's maintainer. It uses Firefox sync storage for your extension settings.
 
+Website access is requested at installation to read text selections and display
+the translation icon on HTTP and HTTPS pages. Local files are not included.
+
 The Firefox manifest declares `websiteContent` because translation sends selected
 web page text to the selected provider. Firefox presents this permission during
 installation.

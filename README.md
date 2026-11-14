@@ -26,6 +26,10 @@ new tab. Yandex is selected by default.
 
 Firefox Desktop **140 or later**.
 
+Allow access to websites during installation so the extension can detect text
+selections and show its icon. Firefox lets you change this access later under
+the extension's **Permissions and data** tab.
+
 ### Firefox Add-ons
 
 Publication of this fork on **Firefox Add-ons is planned for the near future**.
