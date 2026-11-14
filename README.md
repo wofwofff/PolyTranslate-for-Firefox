@@ -5,18 +5,20 @@
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue)](LICENSE)
 [![Firefox Add-ons: coming soon](https://img.shields.io/badge/Firefox_Add--ons-coming_soon-9059FF?logo=firefoxbrowser&logoColor=white)](#firefox-add-ons)
 
-Translate selected text with Yandex Translate from Firefox's context menu or a
-selection icon. Translations open in a separate window or a new tab.
+Translate selected text with Yandex Translate or Google Translate from Firefox's
+context menu or a selection icon. Translations open in a separate window or a
+new tab. Yandex is selected by default.
 
 ## Features
 
+- Choose Yandex Translate or Google Translate as your translation provider.
 - Show an optional translation icon next to selected text or the cursor.
 - Configure translation window dimensions.
 - Open the translation window beside the cursor or selected text.
 - Automatically close the translation popup when returning to the source window.
 - Configure the extension through an Acorn-styled settings page.
 - Use the interface in English or Russian.
-- No API key required: translations open on the Yandex Translate website.
+- No API key required: translations open on the selected provider's website.
 
 ## Installation
 
@@ -52,12 +54,14 @@ To load the source during development, see
 ## Usage
 
 1. Select text on a regular web page.
-2. Right-click and choose **Yandex Translate**, or click the translation icon
-   next to the selection.
+2. Right-click and choose **Yandex Translate** or **Google Translate**, depending
+   on your provider setting, or click the translation icon next to the selection.
 3. View the translation in the window or tab that opens.
 
-To change the opening mode, window dimensions, or icon behavior, open
+To change the provider, opening mode, window dimensions, or icon behavior, open
 `about:addons`, select the extension, and open **Preferences**.
+Choose **Yandex Translate** or **Google Translate** under **Translation provider**
+and click **Save**. The context menu updates when the setting is saved.
 
 Window mode uses a Firefox popup without the normal address bar and tab strip.
 By default, returning to the source window closes the translation popup. Turn off
@@ -78,7 +82,7 @@ Report bugs and suggest improvements in the
 
 ## Roadmap
 
-- [ ] Choose Google Translate or Yandex Translate as the translation provider.
+- [x] Choose Google Translate or Yandex Translate as the translation provider.
 - [ ] Match Firefox's native contextual popup UX and UI as closely as possible,
       without integrating translation APIs.
   - [x] Open translations in a popup without the normal address bar and tab strip.
