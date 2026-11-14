@@ -12,9 +12,9 @@ new tab. Yandex is selected by default.
 ## Features
 
 - Choose Yandex Translate or Google Translate as your translation provider.
-- Show an optional translation icon next to selected text or the cursor.
+- Place the optional selection icon and translation window next to the cursor or the last selected word.
+- Optionally center the translation window in its source Firefox window.
 - Configure translation window dimensions.
-- Open the translation window beside the cursor or selected text.
 - Automatically close the translation popup when returning to the source window.
 - Configure the extension through an Acorn-styled settings page.
 - Use the interface in English or Russian.
@@ -69,9 +69,12 @@ By default, returning to the source window closes the translation popup. Turn of
 to keep it open. Switching to another application or an unrelated Firefox window
 does not close it.
 
-The popup opens beside the cursor or selection and adjusts its position near
-screen edges. Its width and height always come from Preferences; text length
-does not change the window size.
+Under **Placement**, choose the anchor for the icon and translation window:
+
+- **Next to cursor** opens the window at the pointer used to invoke translation.
+- **Next to the last selected word** follows the final word of the selection,
+  including multiline selections. Under **Translation window in text mode**, choose
+  whether to open beside that word or centered in the source Firefox window.
 
 ## Contributing
 
