@@ -33,3 +33,14 @@ test("tab mode preserves the last saved dimensions", async () => {
   assert.equal(ui.stored.window_height, 420);
   assert.equal(ui.nodes.get("settings-status").textContent, "settingsSaved");
 });
+
+test("does not accept a dimension that restore will silently discard", async () => {
+  const ui = await optionsFixture();
+  ui.edit("window_width", "100000000000000000000");
+  await ui.save();
+  assert.equal(
+    ui.writes.length,
+    0,
+    "unsafe dimensions must be rejected before storage.set",
+  );
+});

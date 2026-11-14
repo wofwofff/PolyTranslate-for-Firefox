@@ -31,13 +31,21 @@ function clearFieldError(input) {
 
 function validateDimension(input) {
   clearFieldError(input);
-  if (input.disabled || sizeFields.disabled || input.validity.valid) {
+  if (
+    input.disabled ||
+    sizeFields.disabled ||
+    (input.validity.valid &&
+      globalThis.isValidDimension(input.name, input.valueAsNumber))
+  ) {
     return true;
   }
   const error = document.querySelector(
     input.id === "window_width" ? "#width-error" : "#height-error",
   );
-  error.textContent = chrome.i18n.getMessage("dimensionInvalid", [input.min]);
+  error.textContent = chrome.i18n.getMessage("dimensionInvalid", [
+    input.min,
+    input.max,
+  ]);
   error.hidden = false;
   input.setAttribute("aria-invalid", "true");
   return false;
@@ -65,13 +73,9 @@ function applySettings(settings) {
 async function restoreOptions() {
   saveButton.disabled = true;
   try {
-    const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
-    for (const input of dimensionInputs) {
-      const value = settings[input.name];
-      if (!Number.isSafeInteger(value) || value < Number(input.min)) {
-        settings[input.name] = DEFAULT_SETTINGS[input.name];
-      }
-    }
+    const settings = globalThis.normalizeSettings(
+      await chrome.storage.sync.get(DEFAULT_SETTINGS),
+    );
     savedDimensions = {
       window_width: settings.window_width,
       window_height: settings.window_height,
@@ -137,6 +141,9 @@ form.addEventListener("input", (event) => {
   }
 });
 dimensionInputs.forEach((input) => {
+  const limits = globalThis.DIMENSION_LIMITS[input.name];
+  input.min = String(limits.min);
+  input.max = String(limits.max);
   input.addEventListener("blur", () => validateDimension(input));
 });
 applySettings(DEFAULT_SETTINGS);

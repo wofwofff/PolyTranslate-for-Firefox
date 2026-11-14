@@ -75,11 +75,15 @@
     "message": "Сохранение…"
   },
   "dimensionInvalid": {
-    "message": "Введите целое число не меньше $MINIMUM$.",
+    "message": "Введите целое число от $MINIMUM$ до $MAXIMUM$.",
     "placeholders": {
       "minimum": {
         "content": "$1",
         "example": "320"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "32767"
       }
     }
   },

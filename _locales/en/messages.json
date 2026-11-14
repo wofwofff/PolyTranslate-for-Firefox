@@ -75,11 +75,15 @@
     "message": "Saving…"
   },
   "dimensionInvalid": {
-    "message": "Enter a whole number of $MINIMUM$ or greater.",
+    "message": "Enter a whole number between $MINIMUM$ and $MAXIMUM$.",
     "placeholders": {
       "minimum": {
         "content": "$1",
         "example": "320"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "32767"
       }
     }
   },
