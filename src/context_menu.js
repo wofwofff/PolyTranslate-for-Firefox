@@ -1,4 +1,5 @@
 import "./defaults.js";
+import { openTranslationWindow } from "./translation_window.js";
 
 const contextMenuId = "yandex-translate";
 
@@ -11,7 +12,7 @@ const domainLocales = new Map([
  * Open translation for the given text
  * @param {string} text - Text to translate
  */
-async function openTranslation(text) {
+async function openTranslation(text, sourceTab) {
   if (!text || typeof text !== "string") {
     return;
   }
@@ -33,23 +34,17 @@ async function openTranslation(text) {
   if (settings.target === "tab") {
     await chrome.tabs.create({ url });
   } else {
-    // Ensure integer dimensions
-    await chrome.windows.create({
-      url,
-      type: "popup",
-      width: Math.round(settings.window_width),
-      height: Math.round(settings.window_height),
-    });
+    await openTranslationWindow(url, settings, sourceTab);
   }
 }
 
-async function lookUpYandexTranslate(info) {
+async function lookUpYandexTranslate(info, tab) {
   if (!info || info.menuItemId !== contextMenuId) {
     return;
   }
 
   try {
-    await openTranslation(info.selectionText);
+    await openTranslation(info.selectionText, tab);
   } catch (error) {
     console.error("Failed to open translation from context menu:", error);
   }
@@ -84,12 +79,12 @@ function init() {
 }
 
 // Handle messages from content script
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.action !== "translateSelection") {
     return false;
   }
 
-  openTranslation(message.text)
+  openTranslation(message.text, sender.tab)
     .then(() => sendResponse({ success: true }))
     .catch((error) => {
       console.error("Failed to open translation:", error);
