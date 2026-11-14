@@ -1,7 +1,8 @@
 import "./defaults.js";
 import { openTranslationWindow } from "./translation_window.js";
 
-const contextMenuId = "yandex-translate";
+const contextMenuId = "translate-selection";
+let menuUpdates = Promise.resolve();
 
 const domainLocales = new Map([
   ["en", "com"],
@@ -20,14 +21,15 @@ async function openTranslation(text, sourceTab, anchor) {
       .map((language) => language.split("-")[0])
       .find((language) => domainLocales.has(language)) || "en";
 
-  const domainLocale = domainLocales.get(supportedLanguage);
-  const url = `https://translate.yandex.${domainLocale}/?text=${encodeURIComponent(
-    text,
-  )}`;
-
   const settings = globalThis.normalizeSettings(
     await chrome.storage.sync.get(globalThis.DEFAULT_SETTINGS),
   );
+  const domainLocale = domainLocales.get(supportedLanguage);
+  const encodedText = encodeURIComponent(text);
+  const url =
+    settings.provider === "google"
+      ? `https://translate.google.com/?sl=auto&text=${encodedText}&op=translate`
+      : `https://translate.yandex.${domainLocale}/?text=${encodedText}`;
 
   if (settings.target === "tab") {
     await chrome.tabs.create({
@@ -41,7 +43,7 @@ async function openTranslation(text, sourceTab, anchor) {
   }
 }
 
-async function lookUpYandexTranslate(info, tab) {
+async function lookUpTranslation(info, tab) {
   if (!info || info.menuItemId !== contextMenuId) {
     return;
   }
@@ -65,32 +67,36 @@ async function lookUpYandexTranslate(info, tab) {
   }
 }
 
-function init() {
-  chrome.contextMenus.removeAll(() => {
-    if (chrome.runtime.lastError) {
-      console.error(
-        "Failed to clear extension context menus:",
-        chrome.runtime.lastError,
-      );
-      return;
-    }
-
+async function createContextMenu() {
+  const settings = globalThis.normalizeSettings(
+    await chrome.storage.sync.get(globalThis.DEFAULT_SETTINGS),
+  );
+  await chrome.contextMenus.removeAll();
+  await new Promise((resolve, reject) => {
     chrome.contextMenus.create(
       {
         id: contextMenuId,
-        title: `${chrome.i18n.getMessage("contextMenuTitle")}: %s`,
+        title: `${chrome.i18n.getMessage(
+          settings.provider === "google" ? "providerGoogle" : "providerYandex",
+        )}: %s`,
         contexts: ["selection"],
       },
       () => {
         if (chrome.runtime.lastError) {
-          console.error(
-            "Failed to create translation context menu:",
-            chrome.runtime.lastError,
-          );
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve();
         }
       },
     );
   });
+}
+
+function updateContextMenu() {
+  menuUpdates = menuUpdates.then(createContextMenu).catch((error) => {
+    console.error("Failed to update translation context menu:", error);
+  });
+  return menuUpdates;
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -108,5 +114,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true; // Keep message channel open for async response
 });
 
-chrome.runtime.onInstalled.addListener(init);
-chrome.contextMenus.onClicked.addListener(lookUpYandexTranslate);
+chrome.runtime.onInstalled.addListener(updateContextMenu);
+chrome.runtime.onStartup.addListener(updateContextMenu);
+chrome.contextMenus.onClicked.addListener(lookUpTranslation);
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === "sync" && changes.provider) {
+    return updateContextMenu();
+  }
+});

@@ -2,6 +2,7 @@ globalThis.DEFAULT_SETTINGS = Object.freeze({
   window_height: 650,
   window_width: 900,
   target: "window",
+  provider: "yandex",
   close_on_return: true,
   show_icon: true,
   icon_position: "selection",
@@ -38,6 +39,9 @@ globalThis.normalizeSettings = function (values = {}) {
   }
   if (values.target === "tab") {
     settings.target = "tab";
+  }
+  if (values.provider === "google") {
+    settings.provider = "google";
   }
   if (values.icon_position === "cursor") {
     settings.icon_position = "cursor";

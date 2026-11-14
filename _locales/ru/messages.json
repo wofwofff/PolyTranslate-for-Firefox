@@ -3,10 +3,19 @@
     "message": "PolyTranslate"
   },
   "extensionDescription": {
-    "message": "Перевод выделенного текста через Яндекс Переводчик из контекстного меню или по значку рядом с выделением."
+    "message": "Перевод выделенного текста через Яндекс Переводчик или Google Переводчик из контекстного меню или по значку рядом с выделением."
   },
-  "contextMenuTitle": {
+  "providerYandex": {
     "message": "Yandex Translate"
+  },
+  "providerGoogle": {
+    "message": "Google Переводчик"
+  },
+  "translationProvider": {
+    "message": "Переводчик"
+  },
+  "providerDescription": {
+    "message": "Выберите сайт, на котором будет открываться перевод."
   },
   "openIn": {
     "message": "Открывать перевод"

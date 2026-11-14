@@ -3,10 +3,19 @@
     "message": "PolyTranslate"
   },
   "extensionDescription": {
-    "message": "Translate selected text with Yandex Translate using the context menu or a selection icon."
+    "message": "Translate selected text with Yandex Translate or Google Translate using the context menu or a selection icon."
   },
-  "contextMenuTitle": {
+  "providerYandex": {
     "message": "Yandex Translate"
+  },
+  "providerGoogle": {
+    "message": "Google Translate"
+  },
+  "translationProvider": {
+    "message": "Translation provider"
+  },
+  "providerDescription": {
+    "message": "Choose which website opens your translations."
   },
   "openIn": {
     "message": "Open translation in"

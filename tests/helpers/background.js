@@ -34,6 +34,8 @@ export async function backgroundFixture(t, options = {}) {
   const clicked = event();
   const createdTabs = [];
   const createdWindows = [];
+  const menuItems = [];
+  const settings = { ...options.settings };
   let focusedWindowId = 7;
   const api = {
     i18n: {
@@ -45,11 +47,17 @@ export async function backgroundFixture(t, options = {}) {
         return key;
       },
     },
-    runtime: { onMessage: messages, onInstalled: event(), lastError: null },
+    runtime: {
+      onMessage: messages,
+      onInstalled: event(),
+      onStartup: event(),
+      lastError: null,
+    },
     storage: {
+      onChanged: event(),
       sync: {
         async get(defaults) {
-          return { ...defaults, target: "tab", ...options.settings };
+          return { ...defaults, target: "tab", ...settings };
         },
       },
       session: {
@@ -89,10 +97,11 @@ export async function backgroundFixture(t, options = {}) {
     },
     contextMenus: {
       onClicked: clicked,
-      removeAll(callback) {
-        callback();
+      async removeAll() {
+        menuItems.length = 0;
       },
-      create(_properties, callback) {
+      create(properties, callback) {
+        menuItems.push(properties);
         callback?.();
       },
     },
@@ -103,6 +112,40 @@ export async function backgroundFixture(t, options = {}) {
     api,
     createdTabs,
     createdWindows,
+    menuItems,
+    async install() {
+      await Promise.all(
+        api.runtime.onInstalled.listeners.map((listener) => listener()),
+      );
+    },
+    async startup() {
+      await Promise.all(
+        api.runtime.onStartup.listeners.map((listener) => listener()),
+      );
+    },
+    async changeSettings(changes, area = "sync") {
+      if (area === "sync") {
+        for (const [key, change] of Object.entries(changes)) {
+          if (change.newValue === undefined) delete settings[key];
+          else settings[key] = change.newValue;
+        }
+      }
+      await Promise.all(
+        api.storage.onChanged.listeners.map((listener) =>
+          listener(changes, area),
+        ),
+      );
+    },
+    async clickMenu(
+      text,
+      sourceTab = { id: 3, windowId: 7, incognito: false },
+      frameId = 0,
+    ) {
+      await clicked.listeners[0](
+        { menuItemId: menuItems[0].id, selectionText: text, frameId },
+        sourceTab,
+      );
+    },
     load() {
       return import(pathToFileURL(join(directory, "context_menu.js")));
     },

@@ -105,3 +105,157 @@ test("blank and missing text fail without opening a translation", async (t) => {
   }
   assert.equal(f.createdTabs.length, 0);
 });
+
+test("Google preserves selected text, autodetects the source and keeps the source window", async (t) => {
+  const f = await backgroundFixture(t, {
+    settings: { provider: "google" },
+    focusAfterLookup: 2,
+  });
+  await f.load();
+  const text = "Кот & dog + 雪? #100%";
+  assert.deepEqual(
+    await f.message(
+      { action: "translateSelection", text },
+      { id: 3, windowId: 7, incognito: true },
+    ),
+    { success: true },
+  );
+  const tab = f.createdTabs[0];
+  const url = new URL(tab.url);
+  assert.equal(url.origin, "https://translate.google.com");
+  assert.equal(url.searchParams.get("text"), text);
+  assert.equal(url.searchParams.get("sl"), "auto");
+  assert.equal(url.searchParams.get("op"), "translate");
+  assert.equal(url.searchParams.has("tl"), false);
+  assert.equal(tab.windowId, 7);
+});
+
+test("Google popup uses the same configured dimensions and privacy as Yandex", async (t) => {
+  const f = await backgroundFixture(t, {
+    settings: {
+      provider: "google",
+      target: "window",
+      window_width: 480,
+      window_height: 420,
+      close_on_return: false,
+    },
+  });
+  await f.load();
+  await f.message(
+    { action: "translateSelection", text: "hello" },
+    { id: 3, windowId: 7, incognito: true },
+  );
+  const popup = f.createdWindows[0];
+  assert.equal(new URL(popup.url).hostname, "translate.google.com");
+  assert.equal(popup.width, 480);
+  assert.equal(popup.height, 420);
+  assert.equal(popup.type, "popup");
+  assert.equal(popup.incognito, true);
+});
+
+test("installation replaces the legacy menu with the default Yandex item", async (t) => {
+  const f = await backgroundFixture(t);
+  f.menuItems.push({ id: "yandex-translate", title: "Old menu" });
+  await f.load();
+  await f.install();
+  assert.equal(f.menuItems.length, 1);
+  assert.equal(f.menuItems[0].id, "translate-selection");
+  assert.equal(f.menuItems[0].title, "providerYandex: %s");
+});
+
+test("saving Google updates the context menu and its click opens Google in the source frame", async (t) => {
+  const f = await backgroundFixture(t);
+  await f.load();
+  await f.install();
+  await f.changeSettings({
+    provider: { oldValue: "yandex", newValue: "google" },
+  });
+  assert.equal(f.menuItems.length, 1);
+  assert.equal(f.menuItems[0].title, "providerGoogle: %s");
+  const messages = [];
+  f.api.tabs.sendMessage = async (...args) => {
+    messages.push(args);
+    return { anchor: null };
+  };
+  await f.clickMenu(
+    "hello & goodbye",
+    { id: 3, windowId: 7, incognito: false },
+    12,
+  );
+  assert.equal(new URL(f.createdTabs[0].url).hostname, "translate.google.com");
+  assert.equal(
+    new URL(f.createdTabs[0].url).searchParams.get("text"),
+    "hello & goodbye",
+  );
+  assert.equal(messages[0][2].frameId, 12);
+});
+
+test("removing the provider setting restores Yandex for both menu and translation", async (t) => {
+  const f = await backgroundFixture(t, { settings: { provider: "google" } });
+  await f.load();
+  await f.install();
+  await f.changeSettings({ provider: { oldValue: "google" } });
+  assert.equal(f.menuItems[0].title, "providerYandex: %s");
+  await f.clickMenu("hello");
+  assert.equal(new URL(f.createdTabs[0].url).hostname, "translate.yandex.ru");
+});
+
+test("browser startup restores the saved provider in the context menu", async (t) => {
+  const f = await backgroundFixture(t, { settings: { provider: "google" } });
+  await f.load();
+  await f.startup();
+  assert.equal(f.menuItems[0].title, "providerGoogle: %s");
+});
+
+test("unrelated settings and changes outside sync do not rebuild the menu", async (t) => {
+  const f = await backgroundFixture(t);
+  await f.load();
+  await f.install();
+  const original = f.menuItems[0];
+  await f.changeSettings({ show_icon: { oldValue: true, newValue: false } });
+  await f.changeSettings({ provider: { newValue: "google" } }, "local");
+  assert.equal(f.menuItems[0], original);
+});
+
+test("an unsupported stored provider falls back to Yandex", async (t) => {
+  const f = await backgroundFixture(t, {
+    settings: { provider: "https://evil.test" },
+  });
+  await f.load();
+  await f.install();
+  await f.clickMenu("hello");
+  assert.equal(f.menuItems[0].title, "providerYandex: %s");
+  assert.equal(new URL(f.createdTabs[0].url).hostname, "translate.yandex.ru");
+});
+
+test("rapid provider changes leave one menu for the latest saved provider", async (t) => {
+  const f = await backgroundFixture(t);
+  await f.load();
+  await f.install();
+  const first = f.changeSettings({ provider: { newValue: "google" } });
+  await Promise.resolve();
+  const second = f.changeSettings({ provider: { newValue: "yandex" } });
+  await Promise.all([first, second]);
+  assert.equal(f.menuItems.length, 1);
+  assert.equal(f.menuItems[0].title, "providerYandex: %s");
+});
+
+test("a failed menu creation does not block future provider updates", async (t) => {
+  const f = await backgroundFixture(t);
+  const create = f.api.contextMenus.create;
+  let fail = true;
+  f.api.contextMenus.create = (properties, callback) => {
+    if (fail) {
+      fail = false;
+      f.api.runtime.lastError = { message: "Menu creation failed" };
+      callback();
+      f.api.runtime.lastError = null;
+    } else create(properties, callback);
+  };
+  await f.load();
+  await f.install();
+  assert.equal(f.menuItems.length, 0);
+  await f.changeSettings({ provider: { newValue: "google" } });
+  assert.equal(f.menuItems.length, 1);
+  assert.equal(f.menuItems[0].title, "providerGoogle: %s");
+});

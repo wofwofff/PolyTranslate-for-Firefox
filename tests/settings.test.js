@@ -28,8 +28,28 @@ test("normalization preserves explicit false and supported enum choices", () => 
     icon_position: "cursor",
     show_icon: false,
     close_on_return: false,
+    provider: "yandex",
   };
   assert.deepEqual(globalThis.normalizeSettings(values), values);
+});
+
+test("provider defaults to Yandex and accepts only the supported services", () => {
+  assert.equal(globalThis.DEFAULT_SETTINGS.provider, "yandex");
+  assert.equal(
+    globalThis.normalizeSettings({ provider: "google" }).provider,
+    "google",
+  );
+  for (const provider of [
+    undefined,
+    null,
+    "",
+    "yandex",
+    "other",
+    42,
+    "https://evil.test",
+  ]) {
+    assert.equal(globalThis.normalizeSettings({ provider }).provider, "yandex");
+  }
 });
 
 test("dimension boundaries reject fractions and native integer overflow", () => {
