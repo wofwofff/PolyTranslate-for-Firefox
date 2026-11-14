@@ -8,10 +8,6 @@ const domainLocales = new Map([
   ["ru", "ru"],
 ]);
 
-/**
- * Open translation for the given text
- * @param {string} text - Text to translate
- */
 async function openTranslation(text, sourceTab, anchor) {
   if (typeof text !== "string" || !text.trim()) {
     throw new TypeError("Translation text must be a non-empty string");
@@ -97,7 +93,6 @@ function init() {
   });
 }
 
-// Handle messages from content script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.action !== "translateSelection") {
     return false;

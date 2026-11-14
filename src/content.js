@@ -1,18 +1,12 @@
-// Content script for Yandex Translate extension
-// Shows translation icon when text is selected
-
 (function () {
   "use strict";
 
   try {
-    // Configuration
     const ICON_SIZE = 32;
     const ICON_MARGIN = 5;
     const ICON_PATH = chrome.runtime.getURL("assets/icons/icon-48.png");
     const ICON_STYLES_PATH = chrome.runtime.getURL("src/content.css");
     const DEFAULT_SETTINGS = globalThis.DEFAULT_SETTINGS;
-
-    // State
     let currentIcon = null;
     let iconHost = null;
     let iconStylesLoaded = false;
@@ -33,8 +27,6 @@
       show_icon: DEFAULT_SETTINGS.show_icon,
       icon_position: DEFAULT_SETTINGS.icon_position,
     };
-
-    // Create icon element
     function createIcon() {
       const host = document.createElement("div");
       host.hidden = true;
@@ -68,8 +60,6 @@
       icon.tabIndex = -1;
       icon.disabled = true;
       icon.addEventListener("click", handleIconClick);
-
-      // Log image loading errors
       const image = document.createElement("img");
       image.alt = "";
       image.draggable = false;
@@ -106,14 +96,11 @@
         }
       });
     }
-
-    // Handle icon click
     function handleIconClick(event) {
       event.stopPropagation();
       event.preventDefault();
 
       if (currentSelection.trim()) {
-        // Send message to background script to open translation
         chrome.runtime
           .sendMessage({
             action: "translateSelection",
@@ -135,10 +122,8 @@
       suppressTimer = setTimeout(() => {
         suppressIcon = false;
         suppressTimer = null;
-      }, 500); // 500ms suppression
+      }, 500);
     }
-
-    // Coalesce mouse and keyboard events into one update on the next frame.
     function scheduleSelectionUpdate() {
       if (selectionFrame !== null) {
         return;
@@ -176,24 +161,16 @@
         showIcon(mouseX, mouseY);
       }
     }
-
-    // Show icon at position
     function showIcon(x, y) {
       if (!currentIcon || !iconHost?.isConnected) {
         currentIcon = createIcon();
         iconStylesLoaded = false;
         iconIsVisible = false;
       }
-
-      // Position icon near mouse or selection
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-
-      // Coordinates relative to viewport
       let viewportX = x + ICON_MARGIN;
       let viewportY = y - ICON_SIZE - ICON_MARGIN;
-
-      // Adjust if icon goes out of viewport
       if (viewportX + ICON_SIZE > viewportWidth) {
         viewportX = x - ICON_SIZE - ICON_MARGIN;
       }
@@ -217,8 +194,6 @@
         revealIcon(currentIcon);
       }
     }
-
-    // Hide icon
     function hideIcon() {
       currentSelection = "";
       if (currentIcon && iconIsVisible) {
@@ -228,8 +203,6 @@
         currentIcon.classList.remove("translate-icon-visible");
       }
     }
-
-    // Load settings from storage
     function loadSettings() {
       chrome.storage.sync.get(DEFAULT_SETTINGS, (result) => {
         if (chrome.runtime.lastError) {
@@ -248,13 +221,9 @@
         scheduleSelectionUpdate();
       });
     }
-
-    // Get selected text
     function getSelectedText() {
       return window.getSelection()?.toString().trim() || "";
     }
-
-    // Get the rectangle covering the selected text.
     function getSelectionRect() {
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) {
@@ -315,8 +284,6 @@
         },
       };
     }
-
-    // Handle mouse up (selection end)
     function handleMouseUp(event) {
       if (event.button === 0) {
         keyboardSelection = false;
@@ -363,8 +330,6 @@
         hideIcon();
       }
     }
-
-    // Handle click outside
     function handleClickOutside(event) {
       if (
         currentIcon &&
@@ -374,21 +339,14 @@
         hideIcon();
       }
     }
-
-    // Handle scroll
     function handleScroll() {
       if (currentIcon) {
         hideIcon();
       }
     }
-
-    // Initialize
     function init() {
       rememberSelection();
-      // Load settings
       loadSettings();
-
-      // Listen for storage changes to update settings
       chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName === "sync") {
           if (changes.show_icon) {
@@ -413,8 +371,6 @@
           }
         }
       });
-
-      // Listen for selection events
       document.addEventListener(
         "contextmenu",
         (event) => {
@@ -443,8 +399,6 @@
       document.addEventListener("click", handleClickOutside, true);
       document.addEventListener("scroll", handleScroll, true);
     }
-
-    // Start when DOM is ready
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", init);
     } else {
