@@ -3,7 +3,7 @@
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#requirements)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-0060DF)](manifest.json)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue)](LICENSE)
-[![Firefox Add-ons: coming soon](https://img.shields.io/badge/Firefox_Add--ons-coming_soon-9059FF?logo=firefoxbrowser&logoColor=white)](#firefox-add-ons)
+[![Firefox Add-ons: v1.5.0](https://img.shields.io/badge/Firefox_Add--ons-coming_soon-9059FF?logo=firefoxbrowser&logoColor=white)](#firefox-add-ons)
 
 Translate selected text with Yandex Translate or Google Translate from Firefox's
 context menu or a selection icon. Translations open in a separate window or a
@@ -22,6 +22,8 @@ new tab. Yandex is selected by default.
 
 ## Installation
 
+[Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/polytranslate)
+
 ### Requirements
 
 Firefox Desktop **140 or later**.
@@ -29,31 +31,6 @@ Firefox Desktop **140 or later**.
 Allow website access during installation so the extension can detect text
 selections and show its icon. To translate local files, enable **Access local
 files on your computer** under **Permissions and data** in Firefox 153 or later.
-
-### Firefox Add-ons
-
-Publication of this fork on **Firefox Add-ons is planned for the near future**.
-For now, you can install it locally using the instructions below.
-
-### Local installation
-
-Install a **Mozilla-signed `.xpi`** locally:
-
-1. Save the signed `.xpi` file on your computer.
-2. Open `about:addons` in Firefox.
-3. Open the gear menu and select **Install Add-on From File…**.
-4. Select the `.xpi` file and confirm installation.
-
-The extension remains installed after restarting Firefox. A public Firefox
-Add-ons listing is not required for this installation method.
-
-A signed package is not included in this source checkout. Standard Firefox
-requires Mozilla signing for permanent installation; renaming a ZIP to `.xpi`
-does not sign it. See Mozilla's
-[self-distribution documentation](https://extensionworkshop.com/documentation/publish/self-distribution/).
-
-To load the source during development, see
-[CONTRIBUTING.md](CONTRIBUTING.md#local-firefox-setup).
 
 ## Usage
 
