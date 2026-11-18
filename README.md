@@ -3,7 +3,7 @@
 [![Firefox 140+](https://img.shields.io/badge/Firefox-140%2B-FF7139?logo=firefoxbrowser&logoColor=white)](#requirements)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-0060DF)](manifest.json)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue)](LICENSE)
-[![Firefox Add-ons: v1.5.0](https://img.shields.io/badge/Firefox_Add--ons-coming_soon-9059FF?logo=firefoxbrowser&logoColor=white)](#firefox-add-ons)
+![Mozilla Add-on Version](https://img.shields.io/amo/v/polytranslate%40wofwofff)
 
 Translate selected text with Yandex Translate or Google Translate from Firefox's
 context menu or a selection icon. Translations open in a separate window or a
